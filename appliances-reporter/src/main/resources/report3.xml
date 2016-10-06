@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appliance-report report_id="2014-0000001" report_lang="CZ">
+	<accommodated_info>
+		<first_name>Jan</first_name>
+		<family_name>Kraus</family_name>
+		<birth_date>1964-09-02</birth_date>
+		<faculty>FEI</faculty>
+	</accommodated_info>
+	<room_info>
+		<block>A3</block>
+		<room_number>34</room_number>
+	</room_info>
+	<appliances>
+	</appliances>
+	<place>Bratislava</place>
+	<date>1964-09-30T09:00:00</date>
+</appliance-report>

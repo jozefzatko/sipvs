@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appliance-report report_id="2016-123456">
+	<accommodated_info>
+		<first_name>Peter</first_name>
+		<family_name>Sagan</family_name>
+		<birth_date>1990-01-26</birth_date>
+		<faculty>SvF</faculty>
+	</accommodated_info>
+	<room_info>
+		<block>C3</block>
+		<room_number>15</room_number>
+	</room_info>
+	<appliances>
+		<appliance>
+			<type>Mikrovlnná rúra</type>
+			<name>Sencor SMW</name>
+			<serial_number>TNKF-44</serial_number>
+			<year>2015</year>
+		</appliance>
+	</appliances>
+	<place>Bratislava</place>
+	<date>2016-10-06T19:42:00</date>
+</appliance-report>

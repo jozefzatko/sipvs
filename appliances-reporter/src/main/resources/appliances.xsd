@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" version="1.0">
+	
+	<xsd:simpleType name="faculty_type">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="SvF" />
+			<xsd:enumeration value="SjF" />
+			<xsd:enumeration value="FEI" />
+			<xsd:enumeration value="FCHPT" />
+			<xsd:enumeration value="FA" />
+			<xsd:enumeration value="MTF" />
+			<xsd:enumeration value="FIIT" />
+		</xsd:restriction>
+	</xsd:simpleType>
+	
+	<xsd:simpleType name="block_type">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="A1" />
+			<xsd:enumeration value="A2" />
+			<xsd:enumeration value="A3" />
+			<xsd:enumeration value="A4" />
+			<xsd:enumeration value="B1" />
+			<xsd:enumeration value="B2" />
+			<xsd:enumeration value="B3" />
+			<xsd:enumeration value="B4" />
+			<xsd:enumeration value="C1" />
+			<xsd:enumeration value="C2" />
+			<xsd:enumeration value="C3" />
+			<xsd:enumeration value="C4" />
+			<xsd:enumeration value="D1" />
+			<xsd:enumeration value="D2" />
+			<xsd:enumeration value="D3" />
+			<xsd:enumeration value="D4" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="room_number_type">
+		<xsd:restriction base="xsd:integer">
+			<xsd:minInclusive value="11"/>
+			<xsd:maxInclusive value="99"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	
+	<xsd:simpleType name="made_year_type">
+		<xsd:restriction base="xsd:integer">
+			<xsd:minInclusive value="1900"/>
+			<xsd:maxInclusive value="2099"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	
+	<xsd:element name="appliance-report">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="accommodated_info" minOccurs="1" maxOccurs="1">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element type="xsd:string" name="first_name" minOccurs="1" maxOccurs="1" />
+							<xsd:element type="xsd:string" name="family_name" minOccurs="1" maxOccurs="1" />
+							<xsd:element type="xsd:date" name="birth_date" minOccurs="1" maxOccurs="1" />
+							<xsd:element type="faculty_type" name="faculty" minOccurs="1" maxOccurs="1" />
+							
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+				<xsd:element name="room_info" minOccurs="1" maxOccurs="1">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element type="block_type" name="block" minOccurs="1" maxOccurs="1" />
+							<xsd:element type="room_number_type" name="room_number" minOccurs="1" maxOccurs="1" />
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+				<xsd:element name="appliances" minOccurs="1" maxOccurs="1">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="appliance" minOccurs="0" maxOccurs="unbounded">
+								<xsd:complexType>
+									<xsd:sequence>
+										<xsd:element type="xsd:string" name="type" minOccurs="1" maxOccurs="1" />
+										<xsd:element type="xsd:string" name="name" minOccurs="1" maxOccurs="1" />
+										<xsd:element type="xsd:string" name="serial_number" minOccurs="1" maxOccurs="1" />
+										<xsd:element type="made_year_type" name="year" minOccurs="0" maxOccurs="1" />
+									</xsd:sequence>
+								</xsd:complexType>
+							</xsd:element>
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+				<xsd:element type="xsd:string" name="place" minOccurs="1" maxOccurs="1" />
+				<xsd:element type="xsd:dateTime" name="date" minOccurs="1" maxOccurs="1" />
+			</xsd:sequence>
+			<xsd:attribute type="xsd:string" name="report_id" use="required" />
+			<xsd:attribute type="xsd:string" name="report_lang" />
+		</xsd:complexType>
+	</xsd:element>
+</xsd:schema>
