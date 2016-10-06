@@ -81,7 +81,7 @@
 						<configuration>
 							<finalName>ar</finalName>
 							<descriptorRefs>
-								<descriptorRef>with-dependencies</descriptorRef>
+								<descriptorRef>jar-with-dependencies</descriptorRef>
 							</descriptorRefs>
 							<archive>
 								<manifest>
