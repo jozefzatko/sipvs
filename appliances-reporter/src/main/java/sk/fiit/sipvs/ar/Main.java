@@ -1,9 +1,15 @@
 package sk.fiit.sipvs.ar;
 
+/**
+ * Application entry point
+ * 
+ * @author Jozef Zaťko
+ * 
+ */
 public class Main {
 
 	public static void main(String args[]) {
 		
-		System.out.println("Hello world");
+		new Controller();
 	}
 }
