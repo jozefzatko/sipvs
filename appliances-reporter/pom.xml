@@ -29,6 +29,27 @@
 			<artifactId>junit</artifactId>
 			<version>4.12</version>
 		</dependency>
+		
+		<!-- JAXB for XSD to Object generating-->
+		<dependency>
+			<groupId>com.sun.xml.bind</groupId>
+			<artifactId>jaxb-core</artifactId>
+			<version>2.2.11</version>
+		</dependency>
+		
+		<!-- JAXB for XSD to Object generating-->
+		<dependency>
+			<groupId>javax.xml.bind</groupId>
+			<artifactId>jaxb-api</artifactId>
+			<version>2.2.12</version>
+		</dependency>
+	
+		<!-- JAXB for XSD to Object generating-->
+		<dependency>
+			<groupId>com.sun.xml.bind</groupId>
+			<artifactId>jaxb-impl</artifactId>
+			<version>2.2.11</version>
+		</dependency>
 	
 	</dependencies>
 	
@@ -36,6 +57,26 @@
 	<!-- Project build settings -->
 	<build>
 		<plugins>
+ 
+ 			<!-- JAXB xjc plugin that invokes the xjc compiler to compile XML schema into Java classes.-->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>jaxb2-maven-plugin</artifactId>
+				<version>2.3</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>xjc</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<sources>
+						<source>${basedir}/src/main/resources/appliances.xsd</source>
+ 					</sources>
+ 					<packageName>sk.fiit.sipvs.ar.report</packageName>
+				</configuration>
+			</plugin>
  
 			<!-- Maven compiler plugin -->
 			<plugin>
