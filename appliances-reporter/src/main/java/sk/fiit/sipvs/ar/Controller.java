@@ -24,7 +24,8 @@ public class Controller {
 	public Controller() {
 		
 		uiFrame = new UI();
-			
+
+		uiFrame.getBtnAddAppliance().addActionListener(new AddApplianceListener());
 		uiFrame.getBtnSave().addActionListener(new SaveListener());
 		uiFrame.getBtnValidate().addActionListener(new ValidateListener());
 		uiFrame.getBtnTransform().addActionListener(new TransformListener());
@@ -39,9 +40,10 @@ public class Controller {
 	class SaveListener implements ActionListener {
 
 		public void actionPerformed(ActionEvent event) {
-			
-			XMLSaver saver = new XMLSaver();
-			new Thread(saver).start();
+			if (uiFrame.areAllFieldsFilled()) {
+				XMLSaver saver = new XMLSaver();
+				new Thread(saver).start();
+			}
 		}
 	}
 	
@@ -66,6 +68,14 @@ public class Controller {
 
 			XMLTransformer transformer = new XMLTransformer();
 			new Thread(transformer).start();
+		}
+	}
+
+	class AddApplianceListener implements ActionListener {
+
+		public void actionPerformed(ActionEvent event) {
+
+			uiFrame.addAppliance();
 		}
 	}
 }
