@@ -20,8 +20,8 @@ public class UI extends JFrame {
 	private JTextField tfName;
 	private JTextField tfSurname;
 	private JDatePickerImpl datePicker;
-	private JComboBox cbFaculty;
-	private JComboBox cbBloc;
+	private JComboBox<String> cbFaculty;
+	private JComboBox<String> cbBloc;
 	private JTextField tfRoom;
 	private JTextField tfTypeOfAppliance;
 	private JTextField tfNameOfAppliance;
@@ -83,7 +83,7 @@ public class UI extends JFrame {
 		final JLabel label5 = new JLabel();
 		label5.setText("Fakulta");
 		panel1.add(label5, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-		cbFaculty = new JComboBox(faculties);
+		cbFaculty = new JComboBox<String>(faculties);
 		panel1.add(cbFaculty, new GridConstraints(4, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		final JLabel label6 = new JLabel();
 		label6.setText("Blok");
@@ -91,7 +91,7 @@ public class UI extends JFrame {
 		final JPanel panel3 = new JPanel();
 		panel3.setLayout(new GridLayoutManager(1, 4, new Insets(0, 0, 0, 0), -1, -1));
 		panel1.add(panel3, new GridConstraints(5, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-		cbBloc = new JComboBox(blocks);
+		cbBloc = new JComboBox<String>(blocks);
 		panel3.add(cbBloc, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		final JLabel label7 = new JLabel();
 		label7.setText("Izba");
@@ -258,8 +258,8 @@ public class UI extends JFrame {
 		if (!getTfTypeOfAppliance().equals("") &
 			!getTfNameOfAppliance().equals("") &
 			!getTfSerialNo().equals("") &
-				(this.tfYearOfProduction.getText().equals("") |
-					(getTfYearOfProduction() > 1900 &
+				(this.tfYearOfProduction.getText().equals("") ||
+					(getTfYearOfProduction() > 1900 &&
 					getTfYearOfProduction() <= 2099))) {
 			this.tableModel.addRow(new Object[]{getTfTypeOfAppliance(), getTfNameOfAppliance(),
 					getTfSerialNo(), this.tfYearOfProduction.getText()});
