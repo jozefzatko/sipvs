@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<appliance-report>
+	<accommodated_info>
+		<first_name>Jožko</first_name>
+		<family_name>Mrkvička</family_name>
+		<birth_date>1990-10-20</birth_date>
+		<faculty>FIIT</faculty>
+	</accommodated_info>
+	<room_info>
+		<block>A1</block>
+		<room_number>44</room_number>
+	</room_info>
+	<appliances>
+		<appliance>
+			<type>Notebook</type>
+			<name>Lenevo Y50-70</name>
+			<serial_number>ABCD12345</serial_number>
+			<year>2010</year>
+		</appliance>
+		<appliance>
+			<type>Chladnička</type>
+			<name>CALEX</name>
+			<serial_number>QWERTY999</serial_number>
+			<year>1998</year>
+		</appliance>
+	</appliances>
+	<place>Bratislava</place>
+	<date>2016-09-30T12:12:12</date>
+</appliance-report>
