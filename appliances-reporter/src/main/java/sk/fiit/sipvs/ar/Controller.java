@@ -2,10 +2,14 @@ package sk.fiit.sipvs.ar;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Iterator;
+import java.util.Vector;
 
 import sk.fiit.sipvs.ar.logic.XMLSaver;
 import sk.fiit.sipvs.ar.logic.XMLTransformer;
 import sk.fiit.sipvs.ar.logic.XMLValidator;
+import sk.fiit.sipvs.ar.report.ApplianceReport;
+import sk.fiit.sipvs.ar.report.ObjectFactory;
 import sk.fiit.sipvs.ar.ui.UI;
 import sk.fiit.sipvs.ar.ui.UIThread;
 
@@ -40,11 +44,45 @@ public class Controller {
 	class SaveListener implements ActionListener {
 
 		public void actionPerformed(ActionEvent event) {
+
 			if (uiFrame.areAllFieldsFilled()) {
-				XMLSaver saver = new XMLSaver();
+				ApplianceReport report = new ObjectFactory().createApplianceReport();
+				report.setAccommodatedInfo(fillAccomodatedInfo());
+				report.setAppliances(fillAppliances());
+				report.setRoomInfo(fillRoomInfo());
+				report.setPlace(uiFrame.getTfFilledIn());
+
+				XMLSaver saver = new XMLSaver(report);
 				new Thread(saver).start();
 			}
 		}
+
+		private ApplianceReport.AccommodatedInfo fillAccomodatedInfo() {
+			ApplianceReport.AccommodatedInfo acInfo = new ObjectFactory().createApplianceReportAccommodatedInfo();
+			acInfo.setFirstName(uiFrame.getTfName());
+			acInfo.setFamilyName(uiFrame.getTfSurname());
+			acInfo.setBirthDate(uiFrame.getBirthday());
+			acInfo.setFaculty(uiFrame.getCbFaculty());
+
+			return acInfo;
+		}
+
+		private ApplianceReport.Appliances fillAppliances() {
+
+			ApplianceReport.Appliances appliances = new ApplianceReport.Appliances();
+			appliances.getAppliance().addAll(uiFrame.getListOfAppliances());
+
+			return appliances;
+		}
+
+		private ApplianceReport.RoomInfo fillRoomInfo() {
+			ApplianceReport.RoomInfo roomInfo = new ObjectFactory().createApplianceReportRoomInfo();
+			roomInfo.setBlock(uiFrame.getCbBloc());
+			roomInfo.setRoomNumber(uiFrame.getTfRoom());
+
+			return roomInfo;
+		}
+
 	}
 	
 	/*
@@ -55,7 +93,16 @@ public class Controller {
 		public void actionPerformed(ActionEvent event) {
 			
 			XMLValidator validator = new XMLValidator();
-			new Thread(validator).start();
+			Thread validating = new Thread(validator);
+			validating.start();
+
+			try {
+				validating.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			uiFrame.showValidationErrors(validator.getValidationErrors());
 		}
 	}
 	

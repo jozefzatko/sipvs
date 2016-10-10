@@ -19,14 +19,21 @@ import sk.fiit.sipvs.ar.report.*;
  */
 public class XMLSaver implements Runnable {
 
+	private ApplianceReport report;
+
+	public XMLSaver(ApplianceReport report) {
+		this.report = report;
+	}
+
 	public void run() {
-		
-		// TODO: Save form data to XML
 		System.out.println("Saving to XML...");
-		
-//		ApplianceReport report = new ObjectFactory().createApplianceReport();
-//		saveActualDate(report);
-//		saveToXMLFile(report, "file.xml");
+		saveActualDate(this.report);
+
+		try {
+			saveToXMLFile(this.report, "file.xml");
+		} catch (JAXBException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
