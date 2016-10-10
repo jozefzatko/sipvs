@@ -4,12 +4,60 @@ package sk.fiit.sipvs.ar.logic;
  * Transform XML data file into HTML file using XSLT
  * 
  */
+
+import javax.xml.transform.*;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+import java.awt.Desktop;
+import java.io.File;
+import java.io.FileNotFoundException;
+
 public class XMLTransformer implements Runnable {
 
 	public void run() {
-		
-		// TODO: Transform data from XML to HTML
-		System.out.println("Transforming from XML to HTML...");
-	}
+		File theDir = new File("html_folder");
+		File report = null;
+		try {
+			String directoryName = new String();
 
+			if (!theDir.exists()) {
+				System.out.println("creating directory: " + directoryName);
+				boolean result = false;
+
+				try {
+					theDir.mkdir();
+					result = true;
+				} catch (SecurityException se) {
+					System.out.println("SecurityException");
+				}
+				if (result) {
+					System.out.println("DIR created");
+				}
+			}
+
+			TransformerFactory factory = TransformerFactory.newInstance();
+			Source xslt = new StreamSource(new File("src/main/resources/transformation.xslt"));
+			Transformer transformer = factory.newTransformer(xslt);
+
+			Source text = new StreamSource(new File("src/main/resources/example.xml"));
+			
+			report = new File("html_folder/result.html");
+			if (report == null){
+				throw new FileNotFoundException("Html subor nebol vytvoreny");
+				}
+			transformer.transform(text, new StreamResult(report));
+
+		} catch (Exception ex) {
+			System.out.println("Transforming error.");
+		}
+
+		Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
+		if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
+			try {
+				desktop.browse(report.toURI());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
 }
