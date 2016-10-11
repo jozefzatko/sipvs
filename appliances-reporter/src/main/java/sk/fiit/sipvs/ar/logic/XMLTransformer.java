@@ -8,12 +8,17 @@ package sk.fiit.sipvs.ar.logic;
 import javax.xml.transform.*;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+
+import org.apache.log4j.Logger;
+
 import java.awt.Desktop;
 import java.io.File;
 import java.io.FileNotFoundException;
 
 public class XMLTransformer implements Runnable {
 
+	final static Logger logger = Logger.getLogger(XMLTransformer.class);
+	
 	private String xsltFile;
 	private String xmlFile;
 	
@@ -30,17 +35,19 @@ public class XMLTransformer implements Runnable {
 			String directoryName = new String();
 
 			if (!theDir.exists()) {
-				System.out.println("creating directory: " + directoryName);
+				logger.info("creating directory: " + directoryName);
 				boolean result = false;
 
 				try {
 					theDir.mkdir();
 					result = true;
 				} catch (SecurityException se) {
-					System.out.println("SecurityException");
+					logger.error("SecurityException");
+					logger.error(se.getLocalizedMessage());
+					se.printStackTrace();
 				}
 				if (result) {
-					System.out.println("DIR created");
+					logger.info("DIR created");
 				}
 			}
 
@@ -57,7 +64,9 @@ public class XMLTransformer implements Runnable {
 			transformer.transform(text, new StreamResult(report));
 
 		} catch (Exception ex) {
-			System.out.println("Transforming error.");
+			logger.error("Transforming error.");
+			logger.error(ex.getLocalizedMessage());
+			ex.printStackTrace();
 		}
 
 		Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
@@ -65,6 +74,7 @@ public class XMLTransformer implements Runnable {
 			try {
 				desktop.browse(report.toURI());
 			} catch (Exception e) {
+				logger.error(e.getLocalizedMessage());
 				e.printStackTrace();
 			}
 		}

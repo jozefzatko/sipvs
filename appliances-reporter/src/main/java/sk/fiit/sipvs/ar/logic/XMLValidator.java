@@ -8,6 +8,7 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 
+import org.apache.log4j.Logger;
 import org.xml.sax.SAXException;
 
 /**
@@ -17,6 +18,8 @@ import org.xml.sax.SAXException;
  */
 public class XMLValidator implements Runnable {
 
+	final static Logger logger = Logger.getLogger(XMLValidator.class);
+	
 	private String xsdFile;
 	private String xmlFile;
 	
@@ -30,7 +33,8 @@ public class XMLValidator implements Runnable {
 	
 	public void run() {
 		
-		System.out.println("Validating XML...");
+		logger.info("Validating XML...");
+		
 		this.validationErrors = null;
 		
 		SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
@@ -38,7 +42,7 @@ public class XMLValidator implements Runnable {
 		try {
 			schema = factory.newSchema(new StreamSource(this.xsdFile));
 		} catch (SAXException e) {
-			System.out.println(e.getLocalizedMessage());
+			logger.error(e.getLocalizedMessage());
 			this.validationErrors = e.getLocalizedMessage();
 			e.printStackTrace();
 			return;
@@ -48,17 +52,17 @@ public class XMLValidator implements Runnable {
 	    try {
 			validator.validate(new StreamSource(this.xmlFile));
 	    } catch (IOException e) {
-	    	System.out.println(e.getLocalizedMessage());
+	    	logger.error(e.getLocalizedMessage());
 	    	this.validationErrors = e.getLocalizedMessage();
 	    	e.printStackTrace();
 		} catch (SAXException e) {
-			System.out.println("XML file does not match schema");
-			System.out.println(e.getLocalizedMessage());
+			logger.error("XML file does not match schema");
+			logger.error(e.getLocalizedMessage());
 			this.validationErrors = e.getLocalizedMessage();
 			e.printStackTrace();
 		}
 	    
-	    System.out.println("XML is valid and match schema.");
+	    logger.info("XML is valid and match schema.");
 	}
 
 	public String getValidationErrors() {
