@@ -2,6 +2,7 @@ package sk.fiit.sipvs.ar;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.UUID;
 
 import sk.fiit.sipvs.ar.logic.XMLSaver;
 import sk.fiit.sipvs.ar.logic.XMLTransformer;
@@ -49,6 +50,8 @@ public class Controller {
 
 			if (uiFrame.areAllFieldsFilled()) {
 				ApplianceReport report = new ObjectFactory().createApplianceReport();
+				report.setReportId(UUID.randomUUID().toString());
+				report.setReportLang("SK");
 				report.setAccommodatedInfo(fillAccomodatedInfo());
 				report.setAppliances(fillAppliances());
 				report.setRoomInfo(fillRoomInfo());
