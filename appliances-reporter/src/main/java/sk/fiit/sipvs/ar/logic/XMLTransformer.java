@@ -31,37 +31,37 @@ public class XMLTransformer implements Runnable {
 	public void run() {
 		File theDir = new File("html_folder");
 		File report = null;
-		try {
-			String directoryName = new String();
+		String directoryName = new String();
 
-			if (!theDir.exists()) {
-				logger.info("creating directory: " + directoryName);
-				boolean result = false;
-
-				try {
-					theDir.mkdir();
-					result = true;
-				} catch (SecurityException se) {
-					logger.error("SecurityException");
-					logger.error(se.getLocalizedMessage());
-					se.printStackTrace();
-				}
-				if (result) {
-					logger.info("DIR created");
-				}
+		if (!theDir.exists()) {
+			logger.info("creating directory: " + directoryName);
+			boolean result = false;
+			try {
+				theDir.mkdir();
+				result = true;
+			} catch (SecurityException se) {
+				logger.error("SecurityException");
+				logger.error(se.getLocalizedMessage());
+				se.printStackTrace();
 			}
-
-			TransformerFactory factory = TransformerFactory.newInstance();
-			Source xslt = new StreamSource(new File(this.xsltFile));
-			Transformer transformer = factory.newTransformer(xslt);
-
-			Source text = new StreamSource(new File(this.xmlFile));
+			if (result) {
+				logger.info("DIR created");
+			}
+		}
 			
-			report = new File("html_folder/result.html");
-			if (report == null){
-				throw new FileNotFoundException("Html subor nebol vytvoreny");
-				}
-			transformer.transform(text, new StreamResult(report));
+		try {
+		TransformerFactory factory = TransformerFactory.newInstance();
+		Source xslt = new StreamSource(new File(this.xsltFile));
+		Transformer transformer = factory.newTransformer(xslt);
+
+		Source text = new StreamSource(new File(this.xmlFile));
+			
+		report = new File("html_folder/result.html");
+		if (report == null)
+		{
+			throw new FileNotFoundException("Html subor nebol vytvoreny");
+		}
+		transformer.transform(text, new StreamResult(report));
 
 		} catch (Exception ex) {
 			logger.error("Transforming error.");
