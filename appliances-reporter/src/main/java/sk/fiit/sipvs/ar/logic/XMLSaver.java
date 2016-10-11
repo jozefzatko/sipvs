@@ -11,6 +11,8 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import org.apache.log4j.Logger;
+
 import sk.fiit.sipvs.ar.report.*;
 
 /**
@@ -19,21 +21,29 @@ import sk.fiit.sipvs.ar.report.*;
  */
 public class XMLSaver implements Runnable {
 
+	final static Logger logger = Logger.getLogger(XMLSaver.class);
+	
 	private ApplianceReport report;
+	private String file;
 
-	public XMLSaver(ApplianceReport report) {
+	public XMLSaver(ApplianceReport report, String file) {
 		this.report = report;
+		this.file = file;
 	}
 
 	public void run() {
-		System.out.println("Saving to XML...");
+		logger.info("Saving to XML...");
+		
 		saveActualDate(this.report);
 
 		try {
-			saveToXMLFile(this.report, "file.xml");
+			saveToXMLFile(this.report, file);
 		} catch (JAXBException e) {
+			logger.error(e.getLocalizedMessage());
 			e.printStackTrace();
 		}
+		
+		logger.info(file + " created.");
 	}
 	
 	/**
@@ -68,6 +78,7 @@ public class XMLSaver implements Runnable {
 		try {
 			date = DatatypeFactory.newInstance().newXMLGregorianCalendar(calendar);
 		} catch (DatatypeConfigurationException e) {
+			logger.error(e.getLocalizedMessage());
 			e.printStackTrace();
 		}
 		report.setDate(date);
