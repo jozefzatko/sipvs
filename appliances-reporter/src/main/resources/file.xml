@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<appliance-report report_id="768fadaf-df95-42ac-a110-5f54b3305d30" report_lang="SK">
+    <accommodated_info>
+        <first_name>gfds</first_name>
+        <family_name>gfsda</family_name>
+        <birth_date>2016-10-01+02:00</birth_date>
+        <faculty>SvF</faculty>
+    </accommodated_info>
+    <room_info>
+        <block>A1</block>
+        <room_number>16</room_number>
+    </room_info>
+    <appliances>
+        <appliance>
+            <type>asdfgh</type>
+            <name>ASDFGH</name>
+            <serial_number>ASDFG</serial_number>
+            <year>2000</year>
+        </appliance>
+        <appliance>
+            <type>asdfgh</type>
+            <name>ASDFGH</name>
+            <serial_number>ASDFG</serial_number>
+            <year>2000</year>
+        </appliance>
+        <appliance>
+            <type>asdfgh</type>
+            <name>ASDFGH</name>
+            <serial_number>ASDFG</serial_number>
+            <year>2000</year>
+        </appliance>
+        <appliance>
+            <type>asdfgh</type>
+            <name>ASDFGH</name>
+            <serial_number>ASDFG</serial_number>
+            <year>2000</year>
+        </appliance>
+    </appliances>
+    <place>blava</place>
+    <date>2016-10-11T22:14:48.960+02:00</date>
+</appliance-report>

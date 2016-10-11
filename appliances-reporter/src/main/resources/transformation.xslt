@@ -11,6 +11,8 @@ table, th, td {
 <html>
   <body>
 
+<h2>Zoznam používaných elektrospotrebičov</h2>
+
 <h3>Údaje ubytovaného</h3>
 <p><b>Meno: </b><xsl:value-of select="appliance-report/accommodated_info/first_name"/></p>
 <p><b>Priezvisko: </b><xsl:value-of select="appliance-report/accommodated_info/family_name"/></p>
@@ -25,8 +27,8 @@ table, th, td {
       <tr>
         <th style="text-align:left">Typ</th>
         <th style="text-align:left">Názov</th>
-        <th style="text-align:left">Sérióvé číslo</th>
-        <th style="text-align:left">Rok</th>
+        <th style="text-align:left">Sériové číslo</th>
+        <th style="text-align:left">Rok výroby</th>
       </tr>
       <xsl:for-each select="appliance-report/appliances/appliance">
       <tr>
@@ -39,7 +41,7 @@ table, th, td {
     </table>
 
 <br/>
-<p>Vyplnené v <xsl:value-of select="appliance-report/place"/> dňa <xsl:value-of select="appliance-report/date"/>.</p>
+<p>Vyplnené v <xsl:value-of select="appliance-report/place"/>, dňa <xsl:value-of select="appliance-report/date"/>.</p>
 
   </body>
   </html>

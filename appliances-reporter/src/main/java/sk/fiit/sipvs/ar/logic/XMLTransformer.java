@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class XMLTransformer implements Runnable {
 
@@ -44,36 +45,37 @@ public class XMLTransformer implements Runnable {
 				logger.error(se.getLocalizedMessage());
 				se.printStackTrace();
 			}
+			
 			if (result) {
 				logger.info("DIR created");
 			}
 		}
 			
 		try {
-		TransformerFactory factory = TransformerFactory.newInstance();
-		Source xslt = new StreamSource(new File(this.xsltFile));
-		Transformer transformer = factory.newTransformer(xslt);
+			TransformerFactory factory = TransformerFactory.newInstance();
+			Source xslt = new StreamSource(new File(this.xsltFile));
+			Transformer transformer = factory.newTransformer(xslt);
 
-		Source text = new StreamSource(new File(this.xmlFile));
+			Source text = new StreamSource(new File(this.xmlFile));
 			
-		report = new File("html_folder/result.html");
-		if (report == null)
-		{
-			throw new FileNotFoundException("Html subor nebol vytvoreny");
-		}
-		transformer.transform(text, new StreamResult(report));
+			report = new File("html_folder/result.html");
+			if (report == null){
+				throw new FileNotFoundException("Html subor nebol vytvoreny");
+			}
+		
+			transformer.transform(text, new StreamResult(report));
 
-		} catch (Exception ex) {
-			logger.error("Transforming error.");
-			logger.error(ex.getLocalizedMessage());
-			ex.printStackTrace();
-		}
+			} catch (TransformerException|FileNotFoundException ex) {
+				logger.error("Transforming error.");
+				logger.error(ex.getLocalizedMessage());
+				ex.printStackTrace();
+			}
 
 		Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
 		if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
 			try {
 				desktop.browse(report.toURI());
-			} catch (Exception e) {
+			} catch (IOException e) {
 				logger.error(e.getLocalizedMessage());
 				e.printStackTrace();
 			}
