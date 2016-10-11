@@ -13,15 +13,12 @@ import sk.fiit.sipvs.ar.report.ObjectFactory;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.table.DefaultTableModel;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.awt.*;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
-import java.util.Vector;
 
 public class UI extends JFrame {
 
@@ -145,8 +142,7 @@ public class UI extends JFrame {
 		panel1.add(panel4, new GridConstraints(14, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
 
 		ArrayList<ApplianceReport.Appliances.Appliance> tableData = new ArrayList<>();
-		Object[] columns = new Object[]{"Typ", "Názov", "Sériové číslo", "Rok"};
-		tableModel = new ApplianceTableModel(tableData, columns);
+		tableModel = new ApplianceTableModel(tableData);
 		listOfAppliances = new JTable(tableModel);
 
 		JScrollPane scrollPane = new JScrollPane();
