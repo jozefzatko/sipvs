@@ -7,7 +7,7 @@ table, th, td {
     border: 1px solid black;
     border-collapse: collapse;
 }
-</style>  
+</style>   
 <html>
   <body>
 
@@ -16,20 +16,17 @@ table, th, td {
 <p><b>Priezvisko: </b><xsl:value-of select="appliance-report/accommodated_info/family_name"/></p>
 <p><b>Dátum narodenia: </b><xsl:value-of select="appliance-report/accommodated_info/birth_date"/></p>
 <p><b>Fakulta: </b><xsl:value-of select="appliance-report/accommodated_info/faculty"/></p>
-
-<br/>
-<h3>Údaje o izbe</h3>
 <p><b>Blok: </b><xsl:value-of select="appliance-report/room_info/block"/></p>
 <p><b>Číslo izby: </b><xsl:value-of select="appliance-report/room_info/room_number"/></p>
 
 <br/>
-<h3>Zoznam spotrebičov</h3>
-    <table border="1" width="80%">
+<h3>Údaje o spotrebiči</h3>
+    <table border="1" width="80%" cellpadding="7">
       <tr>
-        <th style="text-align:left">Typ spotrebiču</th>
-        <th style="text-align:left">Názov spotrebiču</th>
+        <th style="text-align:left">Typ</th>
+        <th style="text-align:left">Názov</th>
         <th style="text-align:left">Sérióvé číslo</th>
-        <th style="text-align:left">Rok zakúpenia</th>
+        <th style="text-align:left">Rok</th>
       </tr>
       <xsl:for-each select="appliance-report/appliances/appliance">
       <tr>
@@ -41,8 +38,8 @@ table, th, td {
       </xsl:for-each>
     </table>
 
-<p><b>Miesto: </b><xsl:value-of select="appliance-report/place"/></p>
-<p><b>Dátum: </b><xsl:value-of select="appliance-report/date"/></p>
+<br/>
+<p>Vyplnené v <xsl:value-of select="appliance-report/place"/> dňa <xsl:value-of select="appliance-report/date"/>.</p>
 
   </body>
   </html>
