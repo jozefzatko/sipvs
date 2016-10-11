@@ -73,7 +73,7 @@
 				<xsd:element name="appliances" minOccurs="1" maxOccurs="1">
 					<xsd:complexType>
 						<xsd:sequence>
-							<xsd:element name="appliance" minOccurs="0" maxOccurs="unbounded">
+							<xsd:element name="appliance" minOccurs="1" maxOccurs="unbounded">
 								<xsd:complexType>
 									<xsd:sequence>
 										<xsd:element type="xsd:string" name="type" minOccurs="1" maxOccurs="1" />
