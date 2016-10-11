@@ -2,8 +2,6 @@ package sk.fiit.sipvs.ar;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Iterator;
-import java.util.Vector;
 
 import sk.fiit.sipvs.ar.logic.XMLSaver;
 import sk.fiit.sipvs.ar.logic.XMLTransformer;
@@ -22,6 +20,10 @@ import sk.fiit.sipvs.ar.ui.UIThread;
  */
 public class Controller {
 
+	private static final String XML_FILE = "src//main//resources//file.xml";
+	private static final String XSD_SCHEMA = "src//main//resources//appliances.xsd";
+	private static final String XSLT_FILE = "src//main//resources//transformation.xslt";
+	
 	private UI uiFrame;
 	private UIThread uiThread;
 	
@@ -52,7 +54,7 @@ public class Controller {
 				report.setRoomInfo(fillRoomInfo());
 				report.setPlace(uiFrame.getTfFilledIn());
 
-				XMLSaver saver = new XMLSaver(report);
+				XMLSaver saver = new XMLSaver(report, XML_FILE);
 				new Thread(saver).start();
 			}
 		}
@@ -92,7 +94,7 @@ public class Controller {
 
 		public void actionPerformed(ActionEvent event) {
 			
-			XMLValidator validator = new XMLValidator();
+			XMLValidator validator = new XMLValidator(XSD_SCHEMA, XML_FILE);
 			Thread validating = new Thread(validator);
 			validating.start();
 
@@ -113,7 +115,7 @@ public class Controller {
 
 		public void actionPerformed(ActionEvent event) {
 
-			XMLTransformer transformer = new XMLTransformer();
+			XMLTransformer transformer = new XMLTransformer(XSLT_FILE, XML_FILE);
 			new Thread(transformer).start();
 		}
 	}

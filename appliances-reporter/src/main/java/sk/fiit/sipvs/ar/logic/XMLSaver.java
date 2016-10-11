@@ -20,9 +20,11 @@ import sk.fiit.sipvs.ar.report.*;
 public class XMLSaver implements Runnable {
 
 	private ApplianceReport report;
+	private String file;
 
-	public XMLSaver(ApplianceReport report) {
+	public XMLSaver(ApplianceReport report, String file) {
 		this.report = report;
+		this.file = file;
 	}
 
 	public void run() {
@@ -30,10 +32,12 @@ public class XMLSaver implements Runnable {
 		saveActualDate(this.report);
 
 		try {
-			saveToXMLFile(this.report, "file.xml");
+			saveToXMLFile(this.report, file);
 		} catch (JAXBException e) {
 			e.printStackTrace();
 		}
+		
+		System.out.println(file + " created.");
 	}
 	
 	/**

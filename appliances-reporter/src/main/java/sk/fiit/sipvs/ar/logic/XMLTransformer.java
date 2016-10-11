@@ -14,6 +14,15 @@ import java.io.FileNotFoundException;
 
 public class XMLTransformer implements Runnable {
 
+	private String xsltFile;
+	private String xmlFile;
+	
+	public XMLTransformer(String xsltFile, String xmlFile) {
+		
+		this.xsltFile = xsltFile;
+		this.xmlFile = xmlFile;
+	}
+	
 	public void run() {
 		File theDir = new File("html_folder");
 		File report = null;
@@ -36,10 +45,10 @@ public class XMLTransformer implements Runnable {
 			}
 
 			TransformerFactory factory = TransformerFactory.newInstance();
-			Source xslt = new StreamSource(new File("src/main/resources/transformation.xslt"));
+			Source xslt = new StreamSource(new File(this.xsltFile));
 			Transformer transformer = factory.newTransformer(xslt);
 
-			Source text = new StreamSource(new File("src/main/resources/example.xml"));
+			Source text = new StreamSource(new File(this.xmlFile));
 			
 			report = new File("html_folder/result.html");
 			if (report == null){
