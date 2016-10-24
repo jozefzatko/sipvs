@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 import java.util.UUID;
 
 import sk.fiit.sipvs.ar.logic.XMLSaver;
+import sk.fiit.sipvs.ar.logic.XMLSigner;
 import sk.fiit.sipvs.ar.logic.XMLTransformer;
 import sk.fiit.sipvs.ar.logic.XMLValidator;
 import sk.fiit.sipvs.ar.report.ApplianceReport;
@@ -122,6 +123,18 @@ public class Controller {
 			new Thread(transformer).start();
 		}
 	}
+	
+	/*
+	 * PODPIS button listener
+	 */
+	class SignListener implements ActionListener {
+
+		public void actionPerformed(ActionEvent event) {
+
+			XMLSigner signer = new XMLSigner(XML_FILE, XSD_SCHEMA, XSLT_FILE);
+			new Thread(signer).start();
+		}
+	}
 
 	class AddApplianceListener implements ActionListener {
 
@@ -130,4 +143,5 @@ public class Controller {
 			uiFrame.addAppliance();
 		}
 	}
+	
 }
