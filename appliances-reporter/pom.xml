@@ -64,7 +64,13 @@
 			<artifactId>jdatepicker</artifactId>
 			<version>1.3.2</version>
 		</dependency>
-
+		
+		<!-- JAVA-COM Bridge that allows you to call COM Automation components from Java -->
+		<dependency>
+		    <groupId>net.sf.jacob-project</groupId>
+		    <artifactId>jacob</artifactId>
+		    <version>1.14.3</version>
+		</dependency>
 	
 	</dependencies>
 	
