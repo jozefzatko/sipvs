@@ -1,4 +1,5 @@
 /target/
+/logs/
 /.metadata
 /bin/
 tmp/
@@ -18,3 +19,4 @@ local.properties
 .factorypath
 .buildpath
 html_folder/
+appliances-reporter/log.log
