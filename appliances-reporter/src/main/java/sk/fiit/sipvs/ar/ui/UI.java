@@ -41,6 +41,7 @@ public class UI extends JFrame {
 	private JButton btnSave;
 	private JButton btnValidate;
 	private JButton btnTransform;
+	private JButton btnSign;
 
 	/**
 	 * Create the frame.
@@ -159,7 +160,7 @@ public class UI extends JFrame {
 		final Spacer spacer6 = new Spacer();
 		panel1.add(spacer6, new GridConstraints(17, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
 		final JPanel panel5 = new JPanel();
-		panel5.setLayout(new GridLayoutManager(1, 3, new Insets(0, 0, 0, 0), -1, -1));
+		panel5.setLayout(new GridLayoutManager(1, 4, new Insets(0, 0, 0, 0), -1, -1));
 		panel1.add(panel5, new GridConstraints(18, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
 		btnSave = new JButton();
 		btnSave.setText("Ulož");
@@ -169,7 +170,12 @@ public class UI extends JFrame {
 		panel5.add(btnValidate, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		btnTransform = new JButton();
 		btnTransform.setText("Transformuj");
-		panel5.add(btnTransform, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, 1, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		panel5.add(btnTransform, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		btnSign = new JButton();
+		btnSign.setText("Podpíš");
+		panel5.add(btnSign, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, 1, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+
+
 	}
 
 
@@ -264,6 +270,10 @@ public class UI extends JFrame {
 	public JButton getBtnTransform() {
 
 		return this.btnTransform;
+	}
+
+	public JButton getBtnSign() {
+		return btnSign;
 	}
 
 	public void addAppliance(){

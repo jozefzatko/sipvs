@@ -37,6 +37,7 @@ public class Controller {
 		uiFrame.getBtnSave().addActionListener(new SaveListener());
 		uiFrame.getBtnValidate().addActionListener(new ValidateListener());
 		uiFrame.getBtnTransform().addActionListener(new TransformListener());
+		uiFrame.getBtnSign().addActionListener(new SignListener());
 		
 		uiThread = new UIThread(uiFrame);
 		new Thread(uiThread).start();
@@ -143,5 +144,4 @@ public class Controller {
 			uiFrame.addAppliance();
 		}
 	}
-	
 }
