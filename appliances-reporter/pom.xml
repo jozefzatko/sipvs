@@ -98,6 +98,18 @@
  					<packageName>sk.fiit.sipvs.ar.report</packageName>
 				</configuration>
 			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+			    <artifactId>maven-resources-plugin</artifactId>
+			    <version>3.0.1</version>
+			    <configuration>
+			    	<encoding>${project.build.sourceEncoding}</encoding>
+			    	<nonFilteredFileExtensions>
+						<nonFilteredFileExtension>dll</nonFilteredFileExtension>
+					</nonFilteredFileExtensions>
+				</configuration>
+			</plugin>
  
 			<!-- Maven compiler plugin -->
 			<plugin>
