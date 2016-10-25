@@ -2,8 +2,14 @@ package sk.fiit.sipvs.ar.logic;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import org.apache.log4j.Logger;
+
+import sk.fiit.sipvs.ar.logic.sign.DSignerBridge;
 
 /**
  * Sign XML document using DSig application
@@ -28,32 +34,31 @@ public class XMLSigner implements Runnable {
 	public void run() {
 		
 		
-		String xmlFileAbsolutePath;
-		String xsdFileAbsolutePath;
-		String xsltFileAbsolutePath;
+		String xml = "";
+		String xsd = "";
+		String xslt = "";
 		
 		try {
-			xmlFileAbsolutePath = getAbsolutePath(xmlFile);
-			xsdFileAbsolutePath = getAbsolutePath(xsdFile);
-			xsltFileAbsolutePath = getAbsolutePath(xsltFile);
+			xml = readFile(xmlFile);
+			xsd = readFile(xsdFile);
+			xslt = readFile(xsltFile);
 			
-		} catch (FileNotFoundException e) {
+		} catch (IOException e) {
 			logger.error(e.getLocalizedMessage());
 			e.printStackTrace();
 		}
 		
-		// TODO: sign document
+		DSignerBridge signerBridge = new DSignerBridge();
+		
+		signerBridge.init();
+		//signerBridge.addObject("", "Používané elektrospotrebiče", xml, xsd, xslt);
+		//String signedXml = signerBridge.signXML();
 	}
 	
-	public String getAbsolutePath(String relFilePath) throws FileNotFoundException {
+	private String readFile(String filePath) throws IOException {
 		
-		File file = new File(relFilePath);
-		if(!file.exists()) {
-			
-			throw new FileNotFoundException("File " + relFilePath + " does not exist.");
-		}
-		
-		return file.getAbsolutePath();
+		byte[] encoded = Files.readAllBytes(Paths.get(filePath));
+		return new String(encoded, Charset.defaultCharset());
 	}
 
 }
