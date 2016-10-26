@@ -13,7 +13,6 @@ import org.apache.log4j.Logger;
 
 import java.awt.Desktop;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class XMLTransformer implements Runnable {
@@ -59,13 +58,9 @@ public class XMLTransformer implements Runnable {
 			Source text = new StreamSource(new File(this.xmlFile));
 			
 			report = new File("html_folder/result.html");
-			if (report == null){
-				throw new FileNotFoundException("Html subor nebol vytvoreny");
-			}
-		
 			transformer.transform(text, new StreamResult(report));
 
-			} catch (TransformerException|FileNotFoundException ex) {
+			} catch (TransformerException ex) {
 				logger.error("Transforming error.");
 				logger.error(ex.getLocalizedMessage());
 				ex.printStackTrace();

@@ -1,7 +1,6 @@
 package sk.fiit.sipvs.ar.ui;
 
 import sk.fiit.sipvs.ar.report.ApplianceReport;
-import sk.fiit.sipvs.ar.report.ObjectFactory;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
@@ -9,7 +8,11 @@ import java.util.List;
 
 
 public class ApplianceTableModel extends AbstractTableModel {
-    private String[] columns = new String[]{"Typ", "Názov", "Sériové číslo", "Rok"};
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -3626400786774398088L;
+	private String[] columns = new String[]{"Typ", "Názov", "Sériové číslo", "Rok"};
     private ArrayList<ApplianceReport.Appliances.Appliance> appliances;
 
     public ApplianceTableModel(List<ApplianceReport.Appliances.Appliance> appliances) {
