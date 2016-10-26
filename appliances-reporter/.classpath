@@ -37,6 +37,11 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/Jozef Zaťko/git/appliances-reporter/src/main/resources/jacob/jacob.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="appliances-reporter/src/main/resources/jacob"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="src" output="target/classes" path="target/generated-sources/jaxb">
 		<attributes>
 			<attribute name="optional" value="true"/>

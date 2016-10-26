@@ -20,8 +20,8 @@ public class DSignerBridge {
 
 	final static Logger logger = Logger.getLogger(DSignerBridge.class);
 	
-	private static final String JACOB_DLL_X86 = "jacob-1.14.3-x86.dll";
-	private static final String JACOB_DLL_X64 = "jacob-1.14.3-x64.dll";
+	private static final String JACOB_DLL_X86 = "jacob-1.18-x86.dll";
+	private static final String JACOB_DLL_X64 = "jacob-1.18-x64.dll";
 	
 	private static final String XADES_PROGRAM_ID = "DSig.XadesSig";
 	private static final String XML_PLUGIN_PROGRAM_ID = "DSig.XmlPlugin";
@@ -52,7 +52,7 @@ public class DSignerBridge {
 	 */
 	public void addObject(String objId, String objDescr, String xml, String xsd, String namespace, String xsdRef, String xslt, String xsltRef) throws SignException {
 		
-		this.xmlObject = Dispatch.call(this.xmlComponent, "CreateObject", objId, objDescr, xml, xsd, namespace, xsdRef, xslt, xsltRef);
+		this.xmlObject = Dispatch.call(this.xmlComponent, "CreateObject2", objId, objDescr, xml, xsd, namespace, xsdRef, xslt, xsltRef, "HTML");
 		
 		if (this.xmlObject == null) {
 			logger.error("Cannot create XML object via Dispatch call");
@@ -63,7 +63,7 @@ public class DSignerBridge {
 		
 		if (addOperationMsg.getInt() != 0) {
 			logger.error("Cannot send XML object into Dsig app");
-			throw new SignException(this.xmlComponent.getProperty("ErrorMessage").toString());
+			throw new SignException(this.dSigComponent.getProperty("ErrorMessage").toString());
 		}
 	}
 	
@@ -103,7 +103,7 @@ public class DSignerBridge {
 		LibraryLoader.loadJacobLibrary();
 
 		ActiveXComponent component = new ActiveXComponent(programId);
-			
+				
 		temporaryDll.deleteOnExit();
 		
 		return component;
@@ -113,7 +113,7 @@ public class DSignerBridge {
 	/**
 	 * Return DLL path according to OS architecture 32/64 bit
 	 * 
-	 * @return
+	 * @return path to JACOB DLL plugin
 	 */
 	private String getJacobDllName() {
 		

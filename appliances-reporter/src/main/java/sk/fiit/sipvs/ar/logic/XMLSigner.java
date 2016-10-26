@@ -9,6 +9,8 @@ import java.nio.file.Paths;
 
 import org.apache.log4j.Logger;
 
+import com.jacob.com.ComThread;
+
 import sk.fiit.sipvs.ar.logic.sign.DSignerBridge;
 import sk.fiit.sipvs.ar.logic.sign.SignException;
 
@@ -51,6 +53,8 @@ public class XMLSigner implements Runnable {
 			return;
 		}
 		
+		ComThread.startMainSTA();
+		ComThread.InitSTA();
 		
 		DSignerBridge signerBridge = new DSignerBridge();
 		
@@ -65,7 +69,8 @@ public class XMLSigner implements Runnable {
 		}
 			
 		try {
-			signerBridge.addObject("id1", "Zoznam používaných elektrospotrebičov", xml, xsd, "", "http://www.stuba.sk/appliances.xsd", xslt, "http://www.stuba.sk/transformation.xsd");
+			signerBridge.addObject("id1", "Zoznam používaných elektrospotrebičov", xml, xsd, "", "http://www.w3.org/2001/XMLSchema", xslt, "http://www.w3.org/1999/XSL/Transform");
+	
 		} catch (SignException e) {
 			logger.error(e);
 			return;
@@ -79,6 +84,9 @@ public class XMLSigner implements Runnable {
 			return;
 		}
 		
+		ComThread.Release();
+		ComThread.quitMainSTA();
+
 		try {
 			saveToFile(signedXml, SIGNED_FILE_PATH);
 		} catch (IOException e) {
