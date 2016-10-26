@@ -20,76 +20,101 @@ public class DSignerBridge {
 
 	final static Logger logger = Logger.getLogger(DSignerBridge.class);
 	
-	private static final String JACOB_DLL_X86 = "jacob-1.18-x86.dll";
-	private static final String JACOB_DLL_X64 = "jacob-1.18-x64.dll";
+	private static final String JACOB_DLL_X86 = "jacob-1.14.3-x86.dll";
+	private static final String JACOB_DLL_X64 = "jacob-1.14.3-x64.dll";
 	
 	private static final String XADES_PROGRAM_ID = "DSig.XadesSig";
 	private static final String XML_PLUGIN_PROGRAM_ID = "DSig.XmlPlugin";
 	
-	private ActiveXComponent xadesAppComponent;
+	private ActiveXComponent dSigComponent;
 	private ActiveXComponent xmlComponent;
 	
 	private Object xmlObject;
 	
-	public void init() {
+	public void init() throws IOException {
 		
-		try {
-			initComponent(xadesAppComponent, XADES_PROGRAM_ID);
-		} catch (IOException e) {
-			logger.error(e.getLocalizedMessage());
-			e.printStackTrace();
-		}
-		
-		try {
-			initComponent(xmlComponent, XML_PLUGIN_PROGRAM_ID);
-		} catch (IOException e) {
-			logger.error(e.getLocalizedMessage());
-			e.printStackTrace();
-		}
+		this.dSigComponent = createActiveXComponent(XADES_PROGRAM_ID);
+		this.xmlComponent = createActiveXComponent(XML_PLUGIN_PROGRAM_ID);
 	}
 	
-	public void addObject(String id, String descr, String xml, String xsd, String xslt) {
+	/**
+	 * Send created XML object into Dsig application
+	 * 
+	 * @param objId
+	 * @param objDescr
+	 * @param xml
+	 * @param xsd
+	 * @param namespace
+	 * @param xsdRef
+	 * @param xslt
+	 * @param xsltRef
+	 * @throws SignException 
+	 */
+	public void addObject(String objId, String objDescr, String xml, String xsd, String namespace, String xsdRef, String xslt, String xsltRef) throws SignException {
 		
-		this.xmlObject = Dispatch.call(xmlComponent, "CreateObject", id, descr, xml, xsd, "", "xsd", xslt, "");
+		this.xmlObject = Dispatch.call(this.xmlComponent, "CreateObject", objId, objDescr, xml, xsd, namespace, xsdRef, xslt, xsltRef);
 		
 		if (this.xmlObject == null) {
-			logger.error("Cannot create XML object via Dipatch call");
-			return;
+			logger.error("Cannot create XML object via Dispatch call");
+			throw new SignException(this.xmlComponent.getProperty("ErrorMessage").toString());
+		}
+
+		Variant addOperationMsg = Dispatch.call(this.dSigComponent, "AddObject", this.xmlObject);
+		
+		if (addOperationMsg.getInt() != 0) {
+			logger.error("Cannot send XML object into Dsig app");
+			throw new SignException(this.xmlComponent.getProperty("ErrorMessage").toString());
+		}
+	}
+	
+	/**
+	 * Send created XML to DSigner application to sign
+	 * 
+	 * @param signatureId unique XML id of element ds:Signature
+	 * @param hashAlg type of hash algorithm, e.g. sha1, sha256
+	 * @param policyId unique signature policy identifier
+	 * @return signed XML
+	 * @throws SignException 
+	 */
+	public String signXML(String signatureId, String hashAlg, String policyId) throws SignException {
+		
+		Variant signOperationMsg = Dispatch.call(this.dSigComponent, "Sign", signatureId, hashAlg, policyId);
+		
+		if (signOperationMsg.getInt() != 0) {
+			logger.error("Cannot sign XML document");
+			throw new SignException(this.dSigComponent.getProperty("ErrorMessage").toString());
 		}
 		
-		Variant addOperationMsg = Dispatch.call(xadesAppComponent, "AddObject", this.xmlObject);
+		return this.dSigComponent.getProperty("SignedXmlWithEnvelope").getString();
 	}
 	
-	public String signXML() {
+	/**
+	 * Create object of ActiveX component
+	 * 
+	 * @param programId
+	 * @return ActiveX component
+	 * @throws IOException
+	 */
+	private ActiveXComponent createActiveXComponent(String programId) throws IOException {
 		
-		Variant signOperationMsg = Dispatch.call(xadesAppComponent, "Sign", "FIIT_STU_Bratislava", "sha256", "urn:oid:1.3.158.36061701.1.2.1");
+		File temporaryDll = readDllFile(getJacobDllName());
 		
-		return xadesAppComponent.getProperty("SignedXmlWithEnvelope").getString();
-	}
-	
-	private void initComponent(ActiveXComponent component, String programId) throws IOException {
-		
-		File temporaryDll = null;
-		InputStream inputStream = null;
-		try {
-			inputStream = getClass().getResourceAsStream(getJacobDllName());
-			temporaryDll = createTmpResource(inputStream);
+		System.setProperty(LibraryLoader.JACOB_DLL_PATH, temporaryDll.getAbsolutePath());
+		LibraryLoader.loadJacobLibrary();
 
-			System.setProperty(LibraryLoader.JACOB_DLL_PATH, temporaryDll.getAbsolutePath());
-			LibraryLoader.loadJacobLibrary();
-
-			component = new ActiveXComponent(programId);
-		} finally {
-			if(inputStream != null) {
-				inputStream.close();
-			}
+		ActiveXComponent component = new ActiveXComponent(programId);
 			
-			if(temporaryDll != null) {
-				temporaryDll.deleteOnExit();
-			}
-}
+		temporaryDll.deleteOnExit();
+		
+		return component;
+
 	}
 	
+	/**
+	 * Return DLL path according to OS architecture 32/64 bit
+	 * 
+	 * @return
+	 */
 	private String getJacobDllName() {
 		
 		if (System.getProperty("os.arch").equals("amd64")) {
@@ -99,22 +124,44 @@ public class DSignerBridge {
 		return "/jacob/" + JACOB_DLL_X86;
 	}
 	
-	private File createTmpResource(InputStream inputStream) throws IOException {
+	/**
+	 * Read JACOB DLL file
+	 * Magic according to http://www.javaquery.com/2013/12/getting-started-with-jacob-example-with.html
+	 * 
+	 * @param dllPath path to JACOB DLL
+	 * @return Temp file with loaded DLL
+	 * @throws IOException
+	 */
+	private File readDllFile(String dllPath) throws IOException {
+		
+		InputStream inputStream = null;
 		File temporaryDll = null;
 		FileOutputStream outputStream = null;
+		
 		try {
+			
+			inputStream = getClass().getResourceAsStream(dllPath);
 			temporaryDll = File.createTempFile("jacob", ".dll");
 			outputStream = new FileOutputStream(temporaryDll);
+			
 			byte[] array = new byte[8192];
+			
 			for (int i = inputStream.read(array); i != -1; i = inputStream.read(array)) {
 				outputStream.write(array, 0, i);
 			}
+			
 		} finally {
-			if(outputStream != null){
+			
+			if (inputStream != null) {
+				inputStream.close();
+			}
+			
+			if (outputStream != null) {
 				outputStream.close();
 			}
 		}
 		
 		return temporaryDll;
 	}
+	
 }

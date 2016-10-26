@@ -1,3 +1,4 @@
+/src/main/resources/signed_document.xml
 /target/
 /logs/
 /.metadata
@@ -19,4 +20,3 @@ local.properties
 .factorypath
 .buildpath
 html_folder/
-appliances-reporter/log.log
