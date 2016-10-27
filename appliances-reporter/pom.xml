@@ -66,11 +66,12 @@
 		</dependency>
 		
 		<!-- JAVA-COM Bridge that allows you to call COM Automation components from Java -->
-		<!-- <dependency>
-		    <groupId>net.sf.jacob-project</groupId>
+		<dependency>
+		    <groupId>com.hynnet</groupId>
 		    <artifactId>jacob</artifactId>
-		    <version>1.14.3</version>
-		</dependency> -->
+		    <version>1.18</version>
+		</dependency>
+
 	
 	</dependencies>
 	
@@ -107,7 +108,6 @@
 			    	<encoding>${project.build.sourceEncoding}</encoding>
 			    	<nonFilteredFileExtensions>
 						<nonFilteredFileExtension>dll</nonFilteredFileExtension>
-						<nonFilteredFileExtension>properties</nonFilteredFileExtension>
 					</nonFilteredFileExtensions>
 				</configuration>
 			</plugin>
