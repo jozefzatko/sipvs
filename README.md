@@ -1,30 +1,30 @@
-## Spracovanie informácií v podnikaní a verejnej správe
+# Spracovanie informácií v podnikaní a verejnej správe
 **Semestrálny projekt**
 
-#### Autori:
+### Autori:
 - Daniela Hajdu
 - Erik Bujna
 - Jozef Zaťko
 
-#### Použité technológie:
+### Použité technológie:
 * Java 8 EE (32bit)
 * D.Signer/XAdES .NET (verzia 3)
 * Maven
 * JACOB v1.8
 * JAXB
 
-#### 1. časť
+### 1. časť
 * aplikácia umožňujúca vyplnenie formulára (nahlásenie el. spotrebičov ubytovaného na internáte)
 * vygenerovanie XML a jeho uloženie na disk
 * validácia voči XSD schéme
 * XSL(T) transormácia do HTML
 
-#### 2. časť
+### 2. časť
 * odoslanie vygenerovaného XML do aplikácie DSigner, ktorá zabezpečí elektronický podpis
 * uloženie podpísaného XML dokumentu na disk
 
 
-#### Import aplikácie
+### Import aplikácie
 **pre Windows, Java 8 32bit a Eclipse IDE 32bit**
 
 **1.Naklonovanie git repozitára**
@@ -44,7 +44,7 @@ mvn install
 mvn generate-sources
 ```
 
-**Inštalácia a nastavenie DSigneru**
+### Inštalácia a nastavenie DSigneru
 1. Inštalácia .NET aspoň verzie 3.5
 
 2. Stiahnutie DSigner-u v3.0 [TU](https://www.slovensko.sk/_img/CMS4/DSignerV3.zip)
@@ -59,7 +59,7 @@ C:\Windows\Microsoft.NET\Framework\v4.0.30319\RegAsm.exe /verbose /nologo /codeb
 C:\Windows\Microsoft.NET\Framework\v4.0.30319\RegAsm.exe /verbose /nologo /codebase "C:\Program Files (x86)\Ditec\DSigXades\Ditec.Zep.DSigXades.XmlPlugin.dll"
 ```
 
-#### Spustenie aplikácie
+### Spustenie aplikácie
 ```
 Run as -> Java Application
 ```
