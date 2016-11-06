@@ -13,6 +13,8 @@ import sk.fiit.sipvs.ar.report.ObjectFactory;
 import sk.fiit.sipvs.ar.ui.UI;
 import sk.fiit.sipvs.ar.ui.UIThread;
 
+import javax.swing.*;
+
 /**
  * Runs GUI thread
  * Handles GUI listeners
@@ -30,8 +32,20 @@ public class Controller {
 	private UIThread uiThread;
 	
 	public Controller() {
-		
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (UnsupportedLookAndFeelException e) {
+			e.printStackTrace();
+		}
 		uiFrame = new UI();
+		uiFrame.pack();
+		uiFrame.setBounds(100,100,450,600);
 
 		uiFrame.getBtnAddAppliance().addActionListener(new AddApplianceListener());
 		uiFrame.getBtnSave().addActionListener(new SaveListener());

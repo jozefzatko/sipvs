@@ -1,9 +1,6 @@
 package sk.fiit.sipvs.ar.logic.sign;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 import org.apache.log4j.Logger;
 
@@ -12,6 +9,19 @@ import com.jacob.com.ComThread;
 import com.jacob.com.Dispatch;
 import com.jacob.com.LibraryLoader;
 import com.jacob.com.Variant;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.Text;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 /**
  * JAVA-COM bridge to call DSigner via ActiveX
@@ -89,6 +99,79 @@ public class DSignerBridge {
 		
 		return this.dSignerComponent.getProperty("SignedXmlWithEnvelope").getString();
 	}
+
+	/**
+	 * Send created XML to DSigner application to sign and get timestamp from TSA
+	 *
+	 * @param signatureId unique XML id of element ds:Signature
+	 * @param hashAlg type of hash algorithm, e.g. sha1, sha256
+	 * @param policyId unique signature policy identifier
+	 * @return signed XML with timestamp
+	 * @throws SignException
+	 */
+	public String signXMLwithTimestamp(String signatureId, String hashAlg, String policyId) throws SignException {
+		String signedXML = signXML(signatureId, hashAlg, policyId);
+
+		try {
+			DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
+			InputSource source = new InputSource(new StringReader(signedXML));
+			Document document = documentBuilder.parse(source);
+
+			// Ziskanie elementu xades:QualifyingProperties
+			Node qualifyingProperties = document.getElementsByTagName("xades:QualifyingProperties").item(0);
+
+			if (qualifyingProperties == null) {
+				logger.error("Cannot find xades:QualifyingProperties element.");
+				return null;
+			}
+
+			// Vytvorenie podelementov
+			Element unsignedProperties = document.createElement("xades:UnsignedProperties");
+			Element unsignedSignatureProperties = document.createElement("xades:UnsignedSignatureProperties");
+			Element signatureTimestamp = document.createElement("xades:SignatureTimeStamp");
+			Element encapsulatedTimeStamp = document.createElement("xades:EncapsulatedTimeStamp");
+
+			// Priradenie podelementov
+			unsignedProperties.appendChild(unsignedSignatureProperties);
+			unsignedSignatureProperties.appendChild(signatureTimestamp);
+			signatureTimestamp.appendChild(encapsulatedTimeStamp);
+
+			// Ziskanie samotnej peciatky a vlozenie do dokumentu
+			Node signatureValue = document.getElementsByTagName("ds:SignatureValue").item(0);
+
+			if (signatureValue == null) {
+				logger.error("Cannot find ds:SignatureValue element.");
+				return null;
+			}
+
+			TSAConnector tsClient = new TSAConnector();
+			String timestamp = tsClient.getTimeStampTokenBase64(signatureValue.getTextContent());
+
+			Text signatureNode = document.createTextNode(timestamp);
+			encapsulatedTimeStamp.appendChild(signatureNode);
+
+			qualifyingProperties.appendChild(unsignedProperties);
+
+			// Opatovne vytvorenie XML dokumentu
+			TransformerFactory transformerFactory = TransformerFactory.newInstance();
+			Transformer transformer = transformerFactory.newTransformer();
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+			DOMSource domSource = new DOMSource(document);
+			StreamResult result = new StreamResult(new StringWriter());
+
+			transformer.transform(domSource, result);
+			return result.getWriter().toString();
+
+		} catch (ParserConfigurationException | IOException | SAXException | TransformerException e) {
+			e.printStackTrace();
+		}
+
+
+		return null;
+	}
+
 	
 	
 	/**

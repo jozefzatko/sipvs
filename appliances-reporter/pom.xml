@@ -79,7 +79,7 @@
 	<!-- Project build settings -->
 	<build>
 		<plugins>
- 
+
  			<!-- JAXB xjc plugin that invokes the xjc compiler to compile XML schema into Java classes.-->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>

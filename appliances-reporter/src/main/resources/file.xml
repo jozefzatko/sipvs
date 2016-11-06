@@ -1,41 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<appliance-report report_id="768fadaf-df95-42ac-a110-5f54b3305d30" report_lang="SK">
+<appliance-report report_id="36b4e032-3af7-4da4-9fcc-cfd374140f94" report_lang="SK">
     <accommodated_info>
-        <first_name>gfds</first_name>
-        <family_name>gfsda</family_name>
-        <birth_date>2016-10-01+02:00</birth_date>
-        <faculty>SvF</faculty>
+        <first_name>fd</first_name>
+        <family_name>d</family_name>
+        <birth_date>2016-10-11+02:00</birth_date>
+        <faculty>FCHPT</faculty>
     </accommodated_info>
     <room_info>
-        <block>A1</block>
-        <room_number>16</room_number>
+        <block>A3</block>
+        <room_number>22</room_number>
     </room_info>
     <appliances>
         <appliance>
-            <type>asdfgh</type>
-            <name>ASDFGH</name>
-            <serial_number>ASDFG</serial_number>
-            <year>2000</year>
-        </appliance>
-        <appliance>
-            <type>asdfgh</type>
-            <name>ASDFGH</name>
-            <serial_number>ASDFG</serial_number>
-            <year>2000</year>
-        </appliance>
-        <appliance>
-            <type>asdfgh</type>
-            <name>ASDFGH</name>
-            <serial_number>ASDFG</serial_number>
-            <year>2000</year>
-        </appliance>
-        <appliance>
-            <type>asdfgh</type>
-            <name>ASDFGH</name>
-            <serial_number>ASDFG</serial_number>
-            <year>2000</year>
+            <type>fd</type>
+            <name>qfds</name>
+            <serial_number>fds</serial_number>
+            <year>2012</year>
         </appliance>
     </appliances>
-    <place>blava</place>
-    <date>2016-10-11T22:14:48.960+02:00</date>
+    <place>BA</place>
+    <date>2016-10-29T15:01:20.710+02:00</date>
 </appliance-report>

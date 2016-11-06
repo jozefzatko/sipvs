@@ -73,7 +73,8 @@ public class XMLSigner implements Runnable {
 		
 		String signedXml;
 		try {
-			signedXml = signerBridge.signXML("sign", "sha1", "urn:oid:1.3.158.36061701.1.2.1");
+			//signedXml = signerBridge.signXML("sign", "sha1", "urn:oid:1.3.158.36061701.1.2.1");
+			signedXml = signerBridge.signXMLwithTimestamp("sign", "sha1", "urn:oid:1.3.158.36061701.1.2.1");
 		} catch (SignException e) {
 			logger.error(e);
 			logger.error(e.getLocalizedMessage());
