@@ -118,50 +118,45 @@ public class DSignerBridge {
 			InputSource source = new InputSource(new StringReader(signedXML));
 			Document document = documentBuilder.parse(source);
 
-			// Ziskanie elementu xades:QualifyingProperties
 			Node qualifyingProperties = document.getElementsByTagName("xades:QualifyingProperties").item(0);
 
 			if (qualifyingProperties == null) {
-				logger.error("Cannot find xades:QualifyingProperties element.");
+				logger.error("nenajdeny xades:QualifyingProperties element");
 				return null;
 			}
 
-			// Vytvorenie podelementov
 			Element unsignedProperties = document.createElement("xades:UnsignedProperties");
 			Element unsignedSignatureProperties = document.createElement("xades:UnsignedSignatureProperties");
 			Element signatureTimestamp = document.createElement("xades:SignatureTimeStamp");
 			Element encapsulatedTimeStamp = document.createElement("xades:EncapsulatedTimeStamp");
 
-			// Priradenie podelementov
 			unsignedProperties.appendChild(unsignedSignatureProperties);
 			unsignedSignatureProperties.appendChild(signatureTimestamp);
 			signatureTimestamp.appendChild(encapsulatedTimeStamp);
 
-			// Ziskanie samotnej peciatky a vlozenie do dokumentu
 			Node signatureValue = document.getElementsByTagName("ds:SignatureValue").item(0);
 
 			if (signatureValue == null) {
-				logger.error("Cannot find ds:SignatureValue element.");
+				logger.error("nenajdeny ds:SignatureValue element");
 				return null;
 			}
 
-			TSAConnector tsClient = new TSAConnector();
-			String timestamp = tsClient.getTimeStampTokenBase64(signatureValue.getTextContent());
+			TSAConnector tsaConnector = new TSAConnector();
+			String timestamp = tsaConnector.getTimeStampToken(signatureValue.getTextContent());
 
-			Text signatureNode = document.createTextNode(timestamp);
-			encapsulatedTimeStamp.appendChild(signatureNode);
-
+			Text timestampNode = document.createTextNode(timestamp);
+			encapsulatedTimeStamp.appendChild(timestampNode);
 			qualifyingProperties.appendChild(unsignedProperties);
 
-			// Opatovne vytvorenie XML dokumentu
+			//vytvorenie konecneho XML
 			TransformerFactory transformerFactory = TransformerFactory.newInstance();
 			Transformer transformer = transformerFactory.newTransformer();
 			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-			DOMSource domSource = new DOMSource(document);
-			StreamResult result = new StreamResult(new StringWriter());
 
-			transformer.transform(domSource, result);
+			StreamResult result = new StreamResult(new StringWriter());
+			transformer.transform(new DOMSource(document), result);
+
 			return result.getWriter().toString();
 
 		} catch (ParserConfigurationException | IOException | SAXException | TransformerException e) {

@@ -1,16 +1,12 @@
 package sk.fiit.sipvs.ar.logic.sign;
 
 import sk.ditec.TS;
-
-import org.apache.log4j.Logger;
-
 import org.bouncycastle.tsp.TSPException;
 import org.bouncycastle.tsp.TimeStampResponse;
 import org.bouncycastle.tsp.TimeStampToken;
 import org.springframework.security.crypto.codec.Base64;
 import sk.fiit.sipvs.ar.logic.XMLSigner;
 
-import java.io.File;
 import java.io.IOException;
 
 import static sk.fiit.sipvs.ar.logic.sign.DSignerBridge.logger;
@@ -26,42 +22,41 @@ public class TSAConnector {
 
     public String getTimestamp (String document){
         TS ts = new TS();
-
         String timestampB64 = null;
-        timestampB64 = ts.getTSSoap().getTimestamp(document);
+
+        try {
+            timestampB64 = ts.getTSSoap().getTimestamp(document);
+            logger.info("Casova peciatka (base64): " + timestampB64);
+        } catch (Exception e) {
+            logger.error("Neobdrzana casova peciatka z Ditec TSA: ", e);
+        }
 
         return timestampB64;
     }
 
-    public TimeStampToken getTimeStampToken(String message) {
+    public String getTimeStampToken(String message) {
 
-        TimeStampToken timeStampToken = null;
-        String timeStampBase64 = getTimestamp(message);
-
-        byte[] responseByteData = Base64.decode(timeStampBase64.getBytes());
+        TimeStampToken timestampToken = null;
+        String timeStampB64 = getTimestamp(message);
 
         try {
-            TimeStampResponse response = new TimeStampResponse(responseByteData);
-            timeStampToken = response.getTimeStampToken();
+            TimeStampResponse response = new TimeStampResponse(Base64.decode(timeStampB64.getBytes()));
+            timestampToken = response.getTimeStampToken();
 
-            logger.info("Serial number: " + timeStampToken.getTimeStampInfo().getSerialNumber());
-            logger.info("TSA: " + timeStampToken.getTimeStampInfo().getTsa());
-            logger.info("Gen time: " + timeStampToken.getTimeStampInfo().getGenTime());
+            logger.info("Cas generovania: " + timestampToken.getTimeStampInfo().getGenTime());
+            logger.info("Presnost generovaneho casu: " + timestampToken.getTimeStampInfo().getGenTimeAccuracy().getMillis() + " ms");
+            logger.info("TSA: " + timestampToken.getTimeStampInfo().getTsa());
+            logger.info("Seriove cislo: " + timestampToken.getTimeStampInfo().getSerialNumber());
         } catch (TSPException | IOException e) {
-            logger.error("Cannot retrieve timestamp token: " + e.getLocalizedMessage());
+            logger.error("Timestamp token nebol ziskany: " + e);
         }
 
-        return timeStampToken;
-    }
-
-    public String getTimeStampTokenBase64(String message) {
-
-        TimeStampToken timeStampToken = getTimeStampToken(message);
-
         try {
-            return new String(Base64.encode(timeStampToken.getEncoded()));
+            return new String(Base64.encode(timestampToken.getEncoded()));
         } catch (IOException e) {
-            logger.error("Cannot encode TimeStamp token: " + e.getLocalizedMessage());
+            logger.error("Timestamp token sa neda encodnut: " + e);
+        } catch (NullPointerException e) {
+            logger.error("Timestamp nemoze byt encodnuty, pretoze nebol ziskany: " + e);
         }
 
         return null;
