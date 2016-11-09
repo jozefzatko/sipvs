@@ -5,7 +5,6 @@ import org.bouncycastle.tsp.TSPException;
 import org.bouncycastle.tsp.TimeStampResponse;
 import org.bouncycastle.tsp.TimeStampToken;
 import org.springframework.security.crypto.codec.Base64;
-import sk.fiit.sipvs.ar.logic.XMLSigner;
 
 import java.io.IOException;
 
@@ -15,10 +14,6 @@ import static sk.fiit.sipvs.ar.logic.sign.DSignerBridge.logger;
  * Created by Erik on 27.10.2016.
  */
 public class TSAConnector {
-
-    private static final String XML_FILE = "src//main//resources//file.xml";
-    private static final String XSD_SCHEMA = "src//main//resources//appliances.xsd";
-    private static final String XSLT_FILE = "src//main//resources//transformation.xslt";
 
     public String getTimestamp (String document){
         TS ts = new TS();
@@ -62,9 +57,4 @@ public class TSAConnector {
         return null;
     }
 
-    public static void main(String[] args) {
-
-        XMLSigner sc = new XMLSigner(XML_FILE, XSD_SCHEMA, XSLT_FILE);
-        sc.run();
-    }
 }

@@ -6,13 +6,11 @@
 	<name>AppliancesReporter</name>
 	<description>SIPVS project to report electric appliances</description>
 	
-	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>	
+		<maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
-	
 	
 	<dependencies>
 	
@@ -72,7 +70,20 @@
 		    <version>1.18</version>
 		</dependency>
 
-	
+		<!-- Bouncy Castle cryptography library -->
+		<dependency>
+		    <groupId>org.bouncycastle</groupId>
+		    <artifactId>bcpkix-jdk15on</artifactId>
+		    <version>1.55</version>
+		</dependency>
+		
+		<!-- Spring cryptography library -->
+		<dependency>
+		    <groupId>org.springframework.security</groupId>
+		    <artifactId>spring-security-crypto</artifactId>
+		    <version>4.1.3.RELEASE</version>
+		</dependency>
+				
 	</dependencies>
 	
 	
@@ -87,6 +98,8 @@
 				<version>2.3</version>
 				<executions>
 					<execution>
+						<id>generate-sources</id>
+						<phase>generate-sources</phase>
 						<goals>
 							<goal>xjc</goal>
 						</goals>
@@ -96,10 +109,36 @@
 					<sources>
 						<source>${basedir}/src/main/resources/appliances.xsd</source>
  					</sources>
+ 					<outputDirectory>${basedir}/target/generated-sources</outputDirectory>
  					<packageName>sk.fiit.sipvs.ar.report</packageName>
 				</configuration>
 			</plugin>
 			
+			<!-- wsdl2java to generate Java classes from WSDL -->
+			<plugin>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-codegen-plugin</artifactId>
+				<version>3.1.8</version>
+				<executions>
+					<execution>
+						<id>generate-sources</id>
+						<phase>generate-sources</phase>
+						<configuration>
+						<sourceRoot>${basedir}/target/generated-sources</sourceRoot>
+							<wsdlOptions>
+								<wsdlOption>
+									<wsdl>${basedir}/src/main/resources/META-INF/wsdl/TS.wsdl</wsdl>
+								</wsdlOption>
+							</wsdlOptions>
+						</configuration>
+						<goals>
+							<goal>wsdl2java</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			
+			<!-- Maven resources plugin to handle JACOB dll libraries-->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 			    <artifactId>maven-resources-plugin</artifactId>
@@ -140,32 +179,6 @@
 						</manifest>
 					</archive>
 				</configuration>
-			</plugin>
-			
-			<!-- Maven assembly plugin for final assembly -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.6</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>attached</goal>
-						</goals>
-						<phase>package</phase>
-						<configuration>
-							<finalName>ar</finalName>
-							<descriptorRefs>
-								<descriptorRef>jar-with-dependencies</descriptorRef>
-							</descriptorRefs>
-							<archive>
-								<manifest>
-									<mainClass>sk.fiit.sipvs.ar.Main</mainClass>
-								</manifest>
-							</archive>
-						</configuration>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 	</build>

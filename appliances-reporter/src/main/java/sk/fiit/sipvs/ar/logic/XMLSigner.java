@@ -3,14 +3,33 @@ package sk.fiit.sipvs.ar.logic;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
 import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.Text;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import sk.fiit.sipvs.ar.logic.sign.DSignerBridge;
 import sk.fiit.sipvs.ar.logic.sign.SignException;
+import sk.fiit.sipvs.ar.logic.sign.TSAConnector;
 
 /**
  * Sign XML document using DSig application
@@ -73,8 +92,8 @@ public class XMLSigner implements Runnable {
 		
 		String signedXml;
 		try {
-			//signedXml = signerBridge.signXML("sign", "sha1", "urn:oid:1.3.158.36061701.1.2.1");
-			signedXml = signerBridge.signXMLwithTimestamp("sign", "sha1", "urn:oid:1.3.158.36061701.1.2.1");
+			signedXml = signerBridge.signXML("sign", "sha1", "urn:oid:1.3.158.36061701.1.2.1");
+			signedXml = signXMLwithTimestamp(signedXml);
 		} catch (SignException e) {
 			logger.error(e);
 			logger.error(e.getLocalizedMessage());
@@ -87,6 +106,69 @@ public class XMLSigner implements Runnable {
 			logger.error(e.getLocalizedMessage());
 			return;
 		}
+	}
+	
+	
+	/**
+	 * Send created XML to DSigner application to sign and get timestamp from TSA
+	 *
+	 * @return signed XML with timestamp
+	 * @throws SignException
+	 */
+	public String signXMLwithTimestamp(String signedXML) throws SignException {
+
+		try {
+			DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
+			InputSource source = new InputSource(new StringReader(signedXML));
+			Document document = documentBuilder.parse(source);
+
+			Node qualifyingProperties = document.getElementsByTagName("xades:QualifyingProperties").item(0);
+
+			if (qualifyingProperties == null) {
+				logger.error("nenajdeny xades:QualifyingProperties element");
+				return null;
+			}
+
+			Element unsignedProperties = document.createElement("xades:UnsignedProperties");
+			Element unsignedSignatureProperties = document.createElement("xades:UnsignedSignatureProperties");
+			Element signatureTimestamp = document.createElement("xades:SignatureTimeStamp");
+			Element encapsulatedTimeStamp = document.createElement("xades:EncapsulatedTimeStamp");
+
+			unsignedProperties.appendChild(unsignedSignatureProperties);
+			unsignedSignatureProperties.appendChild(signatureTimestamp);
+			signatureTimestamp.appendChild(encapsulatedTimeStamp);
+
+			Node signatureValue = document.getElementsByTagName("ds:SignatureValue").item(0);
+
+			if (signatureValue == null) {
+				logger.error("nenajdeny ds:SignatureValue element");
+				return null;
+			}
+
+			TSAConnector tsaConnector = new TSAConnector();
+			String timestamp = tsaConnector.getTimeStampToken(signatureValue.getTextContent());
+
+			Text timestampNode = document.createTextNode(timestamp);
+			encapsulatedTimeStamp.appendChild(timestampNode);
+			qualifyingProperties.appendChild(unsignedProperties);
+
+			//vytvorenie konecneho XML
+			TransformerFactory transformerFactory = TransformerFactory.newInstance();
+			Transformer transformer = transformerFactory.newTransformer();
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+
+			StreamResult result = new StreamResult(new StringWriter());
+			transformer.transform(new DOMSource(document), result);
+
+			return result.getWriter().toString();
+
+		} catch (ParserConfigurationException | IOException | SAXException | TransformerException e) {
+			e.printStackTrace();
+		}
+
+		return null;
 	}
 	
 	
@@ -110,6 +192,15 @@ public class XMLSigner implements Runnable {
 		fileWriter.write(strToSave);
 		fileWriter.flush();
 		fileWriter.close();
+	}
+	
+	public static void main(String args[]) {
+		
+		String xml = "src//main//resources//file.xml";
+		String xsd = "src//main//resources//appliances.xsd";
+		String xslt = "src//main//resources//transformation.xslt";
+		
+		new XMLSigner(xml, xsd, xslt).run();
 	}
 
 }

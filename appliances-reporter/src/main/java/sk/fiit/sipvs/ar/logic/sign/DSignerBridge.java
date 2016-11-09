@@ -9,19 +9,6 @@ import com.jacob.com.ComThread;
 import com.jacob.com.Dispatch;
 import com.jacob.com.LibraryLoader;
 import com.jacob.com.Variant;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.Text;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.*;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 /**
  * JAVA-COM bridge to call DSigner via ActiveX
@@ -100,74 +87,6 @@ public class DSignerBridge {
 		return this.dSignerComponent.getProperty("SignedXmlWithEnvelope").getString();
 	}
 
-	/**
-	 * Send created XML to DSigner application to sign and get timestamp from TSA
-	 *
-	 * @param signatureId unique XML id of element ds:Signature
-	 * @param hashAlg type of hash algorithm, e.g. sha1, sha256
-	 * @param policyId unique signature policy identifier
-	 * @return signed XML with timestamp
-	 * @throws SignException
-	 */
-	public String signXMLwithTimestamp(String signatureId, String hashAlg, String policyId) throws SignException {
-		String signedXML = signXML(signatureId, hashAlg, policyId);
-
-		try {
-			DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
-			InputSource source = new InputSource(new StringReader(signedXML));
-			Document document = documentBuilder.parse(source);
-
-			Node qualifyingProperties = document.getElementsByTagName("xades:QualifyingProperties").item(0);
-
-			if (qualifyingProperties == null) {
-				logger.error("nenajdeny xades:QualifyingProperties element");
-				return null;
-			}
-
-			Element unsignedProperties = document.createElement("xades:UnsignedProperties");
-			Element unsignedSignatureProperties = document.createElement("xades:UnsignedSignatureProperties");
-			Element signatureTimestamp = document.createElement("xades:SignatureTimeStamp");
-			Element encapsulatedTimeStamp = document.createElement("xades:EncapsulatedTimeStamp");
-
-			unsignedProperties.appendChild(unsignedSignatureProperties);
-			unsignedSignatureProperties.appendChild(signatureTimestamp);
-			signatureTimestamp.appendChild(encapsulatedTimeStamp);
-
-			Node signatureValue = document.getElementsByTagName("ds:SignatureValue").item(0);
-
-			if (signatureValue == null) {
-				logger.error("nenajdeny ds:SignatureValue element");
-				return null;
-			}
-
-			TSAConnector tsaConnector = new TSAConnector();
-			String timestamp = tsaConnector.getTimeStampToken(signatureValue.getTextContent());
-
-			Text timestampNode = document.createTextNode(timestamp);
-			encapsulatedTimeStamp.appendChild(timestampNode);
-			qualifyingProperties.appendChild(unsignedProperties);
-
-			//vytvorenie konecneho XML
-			TransformerFactory transformerFactory = TransformerFactory.newInstance();
-			Transformer transformer = transformerFactory.newTransformer();
-			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-
-			StreamResult result = new StreamResult(new StringWriter());
-			transformer.transform(new DOMSource(document), result);
-
-			return result.getWriter().toString();
-
-		} catch (ParserConfigurationException | IOException | SAXException | TransformerException e) {
-			e.printStackTrace();
-		}
-
-
-		return null;
-	}
-
-	
 	
 	/**
 	 * Include DLL libraries of JACOB library
