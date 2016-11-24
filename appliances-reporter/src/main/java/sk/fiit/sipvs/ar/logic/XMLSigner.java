@@ -8,6 +8,7 @@ import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.Timestamp;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -135,6 +136,8 @@ public class XMLSigner implements Runnable {
 			Element signatureTimestamp = document.createElement("xades:SignatureTimeStamp");
 			Element encapsulatedTimeStamp = document.createElement("xades:EncapsulatedTimeStamp");
 
+			signatureTimestamp.setAttribute("Id", new Timestamp(System.currentTimeMillis()).getTime() + "");
+			
 			unsignedProperties.appendChild(unsignedSignatureProperties);
 			unsignedSignatureProperties.appendChild(signatureTimestamp);
 			signatureTimestamp.appendChild(encapsulatedTimeStamp);
