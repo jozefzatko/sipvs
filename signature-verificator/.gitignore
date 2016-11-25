@@ -1,0 +1,13 @@
+.project
+.classpath
+.buildpath
+.factorypath
+
+/target/
+/logs/
+
+*.tmp
+*.bak
+*.swp
+*~.nib
+*.launch
