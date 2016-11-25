@@ -12,6 +12,7 @@
 * Maven
 * JACOB v1.8
 * JAXB
+* WSDL2Java
 
 ### 1. časť
 * aplikácia umožňujúca vyplnenie formulára (nahlásenie el. spotrebičov ubytovaného na internáte)
@@ -21,8 +22,11 @@
 
 ### 2. časť
 * odoslanie vygenerovaného XML do aplikácie DSigner, ktorá zabezpečí elektronický podpis
-* uloženie podpísaného XML dokumentu na disk
+* uloženie podpísaného XML dokumentu na disk (elektronický podpis)
 
+### 3. časť
+* získanie časovej pečiatky od TSA (Timestamp Authority) cez webovú službu
+* vloženie časovej pečiatky do štruktúry elektronického podpisu
 
 ### Import aplikácie
 **pre Windows, Java 8 32bit a Eclipse IDE 32bit**
