@@ -16,6 +16,8 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import sk.fiit.sipvs.sv.ui.UI;
+
 /**
  * Open, parse and then validate ArrayList of documents
  * Verify if each document is XadesT Advanced Electronic Signature
@@ -28,7 +30,7 @@ public class MultipleDocumentsVerificator {
 	private static final String UTF8_BOM = "\uFEFF";
 
 	
-	public void verifyDocuments(ArrayList<String> documents) {
+	public void verifyDocuments(ArrayList<String> documents, UI uiFrame) {
 
 		for (String documentPath : documents) {
 			
@@ -57,9 +59,11 @@ public class MultipleDocumentsVerificator {
 				
 			} catch (DocumentVerificationException e) {
 				logger.error("Document " + documentPath + " is not valid \"XADES-T\" Advanced Electronic Signature", e);
+				uiFrame.appendToTextArea("Document " + documentPath + " is not valid \"XADES-T\" Advanced Electronic Signature\n");
+				uiFrame.appendToTextArea(e.getMessage() + "\n\n");
 				continue;
 			}
-			
+			uiFrame.appendToTextArea("Document " + documentPath + " is valid \"XADES-T\" Advanced Electronic Signature\n");
 			logger.info("Document " + documentPath + " is valid \"XADES-T\" Advanced Electronic Signature");
 		}
 	}

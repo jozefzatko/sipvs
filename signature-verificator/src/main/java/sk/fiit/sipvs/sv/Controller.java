@@ -50,9 +50,7 @@ public class Controller {
 				documents.add(file.getAbsolutePath());
 			}
 
-			new MultipleDocumentsVerificator().verifyDocuments(documents);
-
-			//uiFrame.writeToTextArea() alebo appendToTextArea;
+			new MultipleDocumentsVerificator().verifyDocuments(documents, uiFrame);
 		}
 	}
 }

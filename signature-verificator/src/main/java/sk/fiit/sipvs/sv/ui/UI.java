@@ -30,15 +30,16 @@ public class UI extends JFrame {
 			e.printStackTrace();
 		}
 
-		setBounds(100, 100, 650, 800);
+		setBounds(100, 100, 1280, 720);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
 
 		textArea = new JTextArea();
-		textArea.setFont(new Font("Arial", 0, 18));
+		textArea.setFont(new Font("Arial", 0, 24));
 		textArea.setLineWrap(true);
+		textArea.setEditable(false);
 
 		JScrollPane scroll = new JScrollPane (textArea,
 				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
