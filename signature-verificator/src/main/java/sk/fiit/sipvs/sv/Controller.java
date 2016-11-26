@@ -2,11 +2,14 @@ package sk.fiit.sipvs.sv;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.ArrayList;
 
 import sk.fiit.sipvs.sv.ui.UI;
 import sk.fiit.sipvs.sv.ui.UIThread;
 import sk.fiit.sipvs.sv.verify.MultipleDocumentsVerificator;
+
+import javax.swing.*;
 
 /**
  * Runs GUI thread
@@ -32,24 +35,24 @@ public class Controller {
 	class VerifyListener implements ActionListener {
 
 		public void actionPerformed(ActionEvent event) {
-			
+
+			String user_dir = System.getProperty("user.dir");
+			File workingDirectory = new File(user_dir + "//documents");
+
+			JFileChooser chooser = new JFileChooser();
+			chooser.setCurrentDirectory(workingDirectory);
+			chooser.setMultiSelectionEnabled(true);
+			chooser.showOpenDialog(uiFrame);
+			File[] files = chooser.getSelectedFiles();
+
 			ArrayList<String> documents = new ArrayList<String>();
-			
-			documents.add("documents//01XadesT.xml");
-			documents.add("documents//02XadesT.xml");
-			documents.add("documents//03XadesT.xml");
-			documents.add("documents//04XadesT.xml");
-			documents.add("documents//05XadesT.xml");
-			documents.add("documents//06XadesT.xml");
-			documents.add("documents//07XadesT.xml");
-			documents.add("documents//08XadesT.xml");
-			documents.add("documents//09XadesT.xml");
-			documents.add("documents//10XadesT.xml");
-			documents.add("documents//11XadesT.xml");
-			documents.add("documents//12XadesT.xml");
-			documents.add("documents//XadesT.xml");
-			
+			for (File file : files) {
+				documents.add(file.getAbsolutePath());
+			}
+
 			new MultipleDocumentsVerificator().verifyDocuments(documents);
+
+			//uiFrame.writeToTextArea() alebo appendToTextArea;
 		}
 	}
 }
