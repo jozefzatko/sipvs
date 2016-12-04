@@ -1,6 +1,11 @@
 package sk.fiit.sipvs.sv.verify.verifications;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import sk.fiit.sipvs.sv.verify.DocumentVerificationException;
 
@@ -9,6 +14,24 @@ import sk.fiit.sipvs.sv.verify.DocumentVerificationException;
  */
 public class SignatureVerification extends Verification {
 
+	private List<String> signatureMethods = new ArrayList<String>(Arrays.asList(
+			
+		new String[] {
+				"http://www.w3.org/2000/09/xmldsig#dsa-sha1", 
+				"http://www.w3.org/2000/09/xmldsig#rsa-sha1",
+				"http://www.w3.org/2001/04/xmldsig-more#rsa-sha256",
+				"http://www.w3.org/2001/04/xmldsig-more#rsa-sha384",
+				"http://www.w3.org/2001/04/xmldsig-more#rsa-sha512"
+		}
+	));
+	
+	private List<String> canonicalizationMethods = new ArrayList<String>(Arrays.asList(
+			
+			new String[] {
+					"http://www.w3.org/TR/2001/REC-xml-c14n-20010315"
+			}
+		));
+	
 	public SignatureVerification(Document document) {
 		super(document);
 	}
@@ -18,6 +41,22 @@ public class SignatureVerification extends Verification {
 	 * Musia obsahovať URI niektorého z podporovaných algoritmov pre dané elementy podľa profilu XAdES_ZEP
 	 */
 	public boolean verifySignatureMethodAndCanonicalizationMethod() throws DocumentVerificationException {
+		
+		Element signatureMethod = (Element) document.getElementsByTagName("ds:SignatureMethod").item(0);
+		
+		if (assertElementAttributeValue(signatureMethod, "Algorithm", signatureMethods) == false) {
+			
+			throw new DocumentVerificationException(
+					"Atribút Algorithm elementu ds:SignatureMethod neobsahuje URI niektorého z podporovaných algoritmov");
+		}
+		
+		Element canonicalizationMethod = (Element) document.getElementsByTagName("ds:CanonicalizationMethod").item(0);
+		
+		if (assertElementAttributeValue(canonicalizationMethod, "Algorithm", canonicalizationMethods) == false) {
+			
+			throw new DocumentVerificationException(
+					"Atribút Algorithm elementu ds:CanonicalizationMethod neobsahuje URI niektorého z podporovaných algoritmov");
+		}
 		
 		return true;
 	}

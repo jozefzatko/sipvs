@@ -1,5 +1,7 @@
 package sk.fiit.sipvs.sv.verify.verifications;
 
+import java.util.List;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -25,6 +27,18 @@ public abstract class Verification {
 			
 			return true;
 			
+		}
+		return false;
+	}
+	
+	protected boolean assertElementAttributeValue(Element element, String attribute, List<String> expectedValues) {
+		
+		for (String expectedValue : expectedValues) {
+			
+			if (assertElementAttributeValue(element, attribute, expectedValue)) {
+				
+				return true;
+			}
 		}
 		return false;
 	}
