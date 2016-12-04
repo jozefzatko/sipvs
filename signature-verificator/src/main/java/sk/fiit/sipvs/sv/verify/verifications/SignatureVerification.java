@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import sk.fiit.sipvs.sv.verify.DocumentVerificationException;
 
@@ -30,7 +31,25 @@ public class SignatureVerification extends Verification {
 			new String[] {
 					"http://www.w3.org/TR/2001/REC-xml-c14n-20010315"
 			}
-		));
+	));
+	
+	private List<String> transformMethods = new ArrayList<String>(Arrays.asList(
+			
+			new String[] {
+					"http://www.w3.org/TR/2001/REC-xml-c14n-20010315"
+			}
+	));
+	
+	private List<String> digestMethods = new ArrayList<String>(Arrays.asList(
+			
+			new String[] {
+					"http://www.w3.org/2000/09/xmldsig#sha1", 
+					"http://www.w3.org/2001/04/xmldsig-more#sha224",
+					"http://www.w3.org/2001/04/xmlenc#sha256",
+					"http://www.w3.org/2001/04/xmldsig-more#sha384",
+					"http://www.w3.org/2001/04/xmlenc#sha512"
+			}
+	));
 	
 	public SignatureVerification(Document document) {
 		super(document);
@@ -43,7 +62,7 @@ public class SignatureVerification extends Verification {
 	public boolean verifySignatureMethodAndCanonicalizationMethod() throws DocumentVerificationException {
 		
 		Element signatureMethod = (Element) document.getElementsByTagName("ds:SignatureMethod").item(0);
-		
+
 		if (assertElementAttributeValue(signatureMethod, "Algorithm", signatureMethods) == false) {
 			
 			throw new DocumentVerificationException(
@@ -66,6 +85,37 @@ public class SignatureVerification extends Verification {
 	 * Musia obsahovať URI niektorého z podporovaných algoritmov podľa profilu XAdES_ZEP
 	 */
 	public boolean verifyTransformsAndDigestMethod() throws DocumentVerificationException {
+		
+		Element signedInfo = (Element) document.getElementsByTagName("ds:SignedInfo").item(0);
+		
+		
+		NodeList transformsElements = signedInfo.getElementsByTagName("ds:Transforms");
+		
+		for (int i=0; i<transformsElements.getLength(); i++) {
+			
+			Element transformsElement = (Element) transformsElements.item(i);
+			Element transformElement = (Element) transformsElement.getElementsByTagName("ds:Transform").item(0);
+			
+			if (assertElementAttributeValue(transformElement, "Algorithm", transformMethods) == false) {
+				
+				throw new DocumentVerificationException(
+						"Atribút Algorithm elementu ds:Transforms neobsahuje URI niektorého z podporovaných algoritmov");
+			}
+		}
+		
+		
+		NodeList digestMethodElements = signedInfo.getElementsByTagName("ds:DigestMethod");
+		
+		for (int i=0; i<digestMethodElements.getLength(); i++) {
+			
+			Element digestMethodElement = (Element) digestMethodElements.item(0);
+			
+			if (assertElementAttributeValue(digestMethodElement, "Algorithm", digestMethods) == false) {
+				
+				throw new DocumentVerificationException(
+						"Atribút Algorithm elementu ds:DigestMethod neobsahuje URI niektorého z podporovaných algoritmov");
+			}
+		}
 		
 		return true;
 	}
