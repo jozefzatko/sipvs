@@ -21,6 +21,7 @@ public class TSAConnector {
 
         try {
             timestampB64 = ts.getTSSoap().getTimestamp(document);
+
             logger.info("Casova peciatka (base64): " + timestampB64);
         } catch (Exception e) {
             logger.error("Neobdrzana casova peciatka z Ditec TSA: ", e);
@@ -29,10 +30,10 @@ public class TSAConnector {
         return timestampB64;
     }
 
-    public String getTimeStampToken(String message) {
+    public String getTimeStampToken(String document) {
 
         TimeStampToken timestampToken = null;
-        String timeStampB64 = getTimestamp(message);
+        String timeStampB64 = getTimestamp(document);
 
         try {
             TimeStampResponse response = new TimeStampResponse(Base64.decode(timeStampB64.getBytes()));
