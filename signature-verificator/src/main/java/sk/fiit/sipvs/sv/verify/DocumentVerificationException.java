@@ -15,4 +15,9 @@ public class DocumentVerificationException extends Exception {
 		
 		super(s);
 	}
+	
+	public DocumentVerificationException(String s, Exception e) {
+		
+		super(s, e);
+	}
 }
