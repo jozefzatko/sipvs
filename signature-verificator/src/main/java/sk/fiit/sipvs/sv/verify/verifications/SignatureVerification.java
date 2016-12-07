@@ -656,12 +656,35 @@ public class SignatureVerification extends Verification {
 			
 			Element manifestElement = (Element) manifestElements.item(i);
 			
+			/*
+			 * každý ds:Manifest element musí mať Id atribút,
+			 */
 			if (manifestElement.hasAttribute("Id") == false) {
 				
 				throw new DocumentVerificationException(
 						"Element ds:Manifest nema atribut Id");
-			}	
+			}
+			
+			NodeList referenceElements = null;
+			try {
+				referenceElements = XPathAPI.selectNodeList(manifestElement, "ds:Reference");
+				
+			} catch (XPathException e) {
+				
+				throw new DocumentVerificationException("Chyba pri hladanii ds:Reference elementov v ds:Manifest elemente", e);
+			}
+			
+			/*
+			 * každý ds:Manifest element musí obsahovať práve jednu referenciu na ds:Object
+			 */
+			if (referenceElements.getLength() != 1) {
+				
+				System.out.println(referenceElements.getLength());
+				
+				throw new DocumentVerificationException("ds:Manifest element neobsahuje prave jednu referenciu na objekt");
+			}
 		}
+		
 		
 		NodeList referenceElements = null;
 		try {
@@ -677,20 +700,55 @@ public class SignatureVerification extends Verification {
 			NodeList transformsElements = null;
 			try {
 				transformsElements = XPathAPI.selectNodeList(referenceElement, "ds:Transforms/ds:Transform");
+				
 			} catch (XPathException e) {
-				e.printStackTrace();
+				
+				throw new DocumentVerificationException(
+						"Chyba pri hladanie ds:Transform elementov v dokumente", e);
 			}
 			
 			for (int j=0; j<transformsElements.getLength(); j++) {
 				
 				Element transformElement = (Element) transformsElements.item(j);
 				
+				/*
+				 * ds:Transforms musí byť z množiny podporovaných algoritmov pre daný element podľa profilu XAdES_ZEP
+				 */
 				if (assertElementAttributeValue(transformElement, "Algorithm", manifestTransformMethods) == false) {
 					
 					throw new DocumentVerificationException(
 							"Element ds:Transform obsahuje nepovoleny typ algoritmu");
 				}
 			}
+			
+			Element digestMethodElement = null;
+			try {
+				digestMethodElement = (Element) XPathAPI.selectSingleNode(referenceElement, "ds:DigestMethod");
+				
+			} catch (XPathException e) {
+				
+				throw new DocumentVerificationException(
+						"Chyba pri hladanie ds:DigestMethod elementov v dokumente", e);
+			}
+			
+			/*
+			 * ds:DigestMethod – musí obsahovať URI niektorého z podporovaných algoritmov podľa profilu XAdES_ZEP
+			 */
+			if (assertElementAttributeValue(digestMethodElement, "Algorithm", digestMethods) == false) {
+				
+				throw new DocumentVerificationException(
+						"Atribút Algorithm elementu ds:DigestMethod neobsahuje URI niektorého z podporovaných algoritmov");
+			}
+			
+			/*
+			 * overenie hodnoty Type atribútu voči profilu XAdES_ZEP
+			 */
+			if (assertElementAttributeValue(referenceElement, "Type", "http://www.w3.org/2000/09/xmldsig#Object") == false) {
+				
+				throw new DocumentVerificationException(
+						"Atribút Type elementu ds:Reference neobsahuje hodnotu http://www.w3.org/2000/09/xmldsig#Object");
+			}
+			
 		}
 		
 		return true;
