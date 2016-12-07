@@ -315,8 +315,6 @@ public class SignatureVerification extends Verification {
 		String signatureMethod = signatureMethodElement.getAttribute("Algorithm");
 		signatureMethod = SIGN_ALG.get(signatureMethod);
 		
-		System.out.println(certificate.getPublicKey());
-		
 		Signature signer = null;
 		try {
 			signer = Signature.getInstance(signatureMethod);
@@ -679,8 +677,6 @@ public class SignatureVerification extends Verification {
 			 */
 			if (referenceElements.getLength() != 1) {
 				
-				System.out.println(referenceElements.getLength());
-				
 				throw new DocumentVerificationException("ds:Manifest element neobsahuje prave jednu referenciu na objekt");
 			}
 		}
@@ -690,7 +686,8 @@ public class SignatureVerification extends Verification {
 		try {
 			referenceElements = XPathAPI.selectNodeList(document.getDocumentElement(), "//ds:Signature/ds:Object/ds:Manifest/ds:Reference");
 		} catch (XPathException e) {
-			e.printStackTrace();
+			
+			throw new DocumentVerificationException("Chyba pri hladanii ds:Reference elementov v dokumente", e);
 		}
 		
 		for (int i=0; i<referenceElements.getLength(); i++) {
@@ -760,6 +757,86 @@ public class SignatureVerification extends Verification {
 	 * 	- overenie hodnoty ds:DigestValue
 	 */
 	public boolean verifyManifestElementsReferences() throws DocumentVerificationException {
+		
+		NodeList referenceElements = null;
+		try {
+			referenceElements = XPathAPI.selectNodeList(document.getDocumentElement(), "//ds:Signature/ds:Object/ds:Manifest/ds:Reference");
+			
+		} catch (XPathException e) {
+			
+			throw new DocumentVerificationException("Chyba pri hladanii ds:Reference elementov v dokumente", e);
+		}
+		
+		for (int i=0; i<referenceElements.getLength(); i++) {
+			
+			Element referenceElement = (Element) referenceElements.item(i);
+			String uri = referenceElement.getAttribute("URI").substring(1);
+			
+			Element objectElement = this.elementFinder.findByAttributeValue("ds:Object", "Id", uri);
+			
+			Element digestValueElement = (Element) referenceElement.getElementsByTagName("ds:DigestValue").item(0);
+			Element digestMethodlement = (Element) referenceElement.getElementsByTagName("ds:DigestMethod").item(0);
+			
+			String digestMethod = digestMethodlement.getAttribute("Algorithm");
+			digestMethod = DIGEST_ALG.get(digestMethod);
+			
+			NodeList transformsElements = referenceElement.getElementsByTagName("ds:Transforms");
+			
+			for (int j=0; j<transformsElements.getLength(); j++) {
+				
+				Element transformsElement = (Element) transformsElements.item(j);
+				Element transformElement = (Element) transformsElement.getElementsByTagName("ds:Transform").item(j);
+				
+				String transformMethod = transformElement.getAttribute("Algorithm");
+				
+				byte[] objectElementBytes = null;
+				
+				try {
+					objectElementBytes = Converter.fromElementToString(objectElement).getBytes();
+				
+				} catch (TransformerException e) {
+					
+					throw new DocumentVerificationException(
+							"Overenie referencií v elementoch ds:Manifest zlyhalo. Chyba pri tranformacii z Element do String", e);
+				}
+				
+				if ("http://www.w3.org/TR/2001/REC-xml-c14n-20010315".equals(transformMethod)) {
+					
+					try {
+						Canonicalizer canonicalizer = Canonicalizer.getInstance(transformMethod);
+						objectElementBytes = canonicalizer.canonicalize(objectElementBytes);
+						
+					} catch (SAXException | InvalidCanonicalizerException | CanonicalizationException | ParserConfigurationException | IOException e) {
+						
+						throw new DocumentVerificationException("Core validation zlyhala. Chyba pri kanonikalizacii", e);
+					}
+				}
+				
+				if ("http://www.w3.org/2000/09/xmldsig#base64".equals(transformMethod)) {
+					
+					objectElementBytes = Base64.decode(objectElementBytes);
+				}
+				
+				MessageDigest messageDigest = null;
+				try {
+					messageDigest = MessageDigest.getInstance(digestMethod);
+					
+				} catch (NoSuchAlgorithmException e) {
+					
+					throw new DocumentVerificationException(
+							"Core validation zlyhala. Neznamy algoritmus " + digestMethod, e);
+				}
+				
+				String actualDigestValue = new String(Base64.encode(messageDigest.digest(objectElementBytes)));
+				String expectedDigestValue = digestValueElement.getTextContent();
+				
+				if (expectedDigestValue.equals(actualDigestValue) == false) {
+					
+					throw new DocumentVerificationException(
+							"Hodnota ds:DigestValue elementu ds:Reference sa nezhoduje s hash hodnotou elementu ds:Manifest.");
+				}
+			}
+		}
 		
 		return true;
 	}
