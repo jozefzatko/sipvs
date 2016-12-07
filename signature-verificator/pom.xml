@@ -55,6 +55,14 @@
 		    <artifactId>xmlsec</artifactId>
 		    <version>1.5.8</version>
 		</dependency>
+		
+		<!-- Select XML nodes using XPath and a single line of Java code  -->
+		<dependency>
+		    <groupId>it.svario.xpathapi</groupId>
+		    <artifactId>xpathapi-jaxp</artifactId>
+		    <version>0.3</version>
+		</dependency>
+		
 				
 	</dependencies>
 	

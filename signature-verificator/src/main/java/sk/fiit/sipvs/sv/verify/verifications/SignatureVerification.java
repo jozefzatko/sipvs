@@ -14,6 +14,7 @@ import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
+import javax.xml.xpath.XPathException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Document;
@@ -21,6 +22,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import it.svario.xpathapi.jaxp.XPathAPI;
 import sk.fiit.sipvs.sv.utils.Converter;
 import sk.fiit.sipvs.sv.verify.DocumentVerificationException;
 
@@ -69,6 +71,14 @@ public class SignatureVerification extends Verification {
 					"http://www.w3.org/2001/04/xmlenc#sha256",
 					"http://www.w3.org/2001/04/xmldsig-more#sha384",
 					"http://www.w3.org/2001/04/xmlenc#sha512"
+			}
+	));
+	
+	private List<String> manifestTransformMethods = new ArrayList<String>(Arrays.asList(
+			
+			new String[] {
+					"http://www.w3.org/TR/2001/REC-xml-c14n-20010315",
+					"http://www.w3.org/2000/09/xmldsig#base64"
 			}
 	));
 	
@@ -632,6 +642,56 @@ public class SignatureVerification extends Verification {
 	 * 	- každý ds:Manifest element musí obsahovať práve jednu referenciu na ds:Object
 	 */
 	public boolean verifyManifestElements() throws DocumentVerificationException {
+		
+		NodeList manifestElements = null;
+		try {
+			manifestElements = XPathAPI.selectNodeList(document.getDocumentElement(), "//ds:Signature/ds:Object/ds:Manifest");
+			
+		} catch (XPathException e) {
+			
+			throw new DocumentVerificationException("Chyba pri hladanie ds:Manifest elementov v dokumente", e);
+		}
+		
+		for (int i=0; i<manifestElements.getLength(); i++) {
+			
+			Element manifestElement = (Element) manifestElements.item(i);
+			
+			if (manifestElement.hasAttribute("Id") == false) {
+				
+				throw new DocumentVerificationException(
+						"Element ds:Manifest nema atribut Id");
+			}	
+		}
+		
+		NodeList referenceElements = null;
+		try {
+			referenceElements = XPathAPI.selectNodeList(document.getDocumentElement(), "//ds:Signature/ds:Object/ds:Manifest/ds:Reference");
+		} catch (XPathException e) {
+			e.printStackTrace();
+		}
+		
+		for (int i=0; i<referenceElements.getLength(); i++) {
+			
+			Element referenceElement = (Element) referenceElements.item(i);
+			
+			NodeList transformsElements = null;
+			try {
+				transformsElements = XPathAPI.selectNodeList(referenceElement, "ds:Transforms/ds:Transform");
+			} catch (XPathException e) {
+				e.printStackTrace();
+			}
+			
+			for (int j=0; j<transformsElements.getLength(); j++) {
+				
+				Element transformElement = (Element) transformsElements.item(j);
+				
+				if (assertElementAttributeValue(transformElement, "Algorithm", manifestTransformMethods) == false) {
+					
+					throw new DocumentVerificationException(
+							"Element ds:Transform obsahuje nepovoleny typ algoritmu");
+				}
+			}
+		}
 		
 		return true;
 	}
