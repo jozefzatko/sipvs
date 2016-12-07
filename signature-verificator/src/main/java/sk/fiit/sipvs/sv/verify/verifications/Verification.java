@@ -1,7 +1,9 @@
 package sk.fiit.sipvs.sv.verify.verifications;
 
+import java.security.Security;
 import java.util.List;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -28,6 +30,7 @@ public abstract class Verification {
 		this.certFinder = new CertificateFinder(document);
 		
 		org.apache.xml.security.Init.init();
+		Security.addProvider(new BouncyCastleProvider());
 	}
 	
 	protected boolean assertElementAttributeValue(Element element, String attribute, String expectedValue) {

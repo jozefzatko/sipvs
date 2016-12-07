@@ -26,21 +26,35 @@ public class CertificateFinder {
 
 	public X509CertificateObject getCertificate() throws XPathExpressionException, DocumentVerificationException {
 		
-		Element keyInfo = (Element) document.getElementsByTagName("ds:KeyInfo").item(0);
-		Element x509Data = (Element) keyInfo.getElementsByTagName("ds:X509Data").item(0);
-		Element x509Certificate = (Element) x509Data.getElementsByTagName("ds:X509Certificate").item(0);
+		Element keyInfoElement = (Element) document.getElementsByTagName("ds:KeyInfo").item(0);
+		
+		if (keyInfoElement == null) {
+			throw new DocumentVerificationException("Chyba pri ziskavani certifikatu: Dokument neobsahuje element ds:KeyInfo");
+		}
+		
+		Element x509DataElement = (Element) keyInfoElement.getElementsByTagName("ds:X509Data").item(0);
+		
+		if (x509DataElement == null) {
+			throw new DocumentVerificationException("Chyba pri ziskavani certifikatu: Dokument neobsahuje element ds:X509Data");
+		}
+		
+		Element x509Certificate = (Element) x509DataElement.getElementsByTagName("ds:X509Certificate").item(0);
 
+		if (x509Certificate == null) {
+			throw new DocumentVerificationException("Chyba pri ziskavani certifikatu: Dokument neobsahuje element ds:X509Certificate");
+		}
+		
 		X509CertificateObject certObject = null;
 		ASN1InputStream inputStream = null;
 		
 		try {
 			inputStream = new ASN1InputStream(new ByteArrayInputStream(Base64.decode(x509Certificate.getTextContent())));
-			ASN1Sequence equence = (ASN1Sequence) inputStream.readObject();
-			certObject = new X509CertificateObject(Certificate.getInstance(equence));
+			ASN1Sequence sequence = (ASN1Sequence) inputStream.readObject();
+			certObject = new X509CertificateObject(Certificate.getInstance(sequence));
 			
 		} catch (IOException | java.security.cert.CertificateParsingException e) {
 			
-			throw new DocumentVerificationException("Certifikát nebolo možné načítať");
+			throw new DocumentVerificationException("Certifikát nebolo možné načítať", e);
 			
 		} finally {
 			

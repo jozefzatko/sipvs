@@ -1,8 +1,11 @@
 package sk.fiit.sipvs.sv.verify.verifications;
 
 import java.io.IOException;
+import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.Signature;
+import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -79,6 +82,17 @@ public class SignatureVerification extends Verification {
 		DIGEST_ALG.put("http://www.w3.org/2001/04/xmldsig-more#sha384", "SHA-384");
 		DIGEST_ALG.put("http://www.w3.org/2001/04/xmlenc#sha512", "SHA-512");
 	}
+	
+	private static final Map<String, String> SIGN_ALG;
+	
+	static {
+		SIGN_ALG = new HashMap<String, String>();
+		SIGN_ALG.put("http://www.w3.org/2000/09/xmldsig#dsa-sha1", "SHA1withDSA");
+		SIGN_ALG.put("http://www.w3.org/2000/09/xmldsig#rsa-sha1", "SHA1withRSA/ISO9796-2");
+		SIGN_ALG.put("http://www.w3.org/2001/04/xmldsig-more#rsa-sha256", "SHA256withRSA");
+		SIGN_ALG.put("http://www.w3.org/2001/04/xmldsig-more#rsa-sha384", "SHA384withRSA");
+		SIGN_ALG.put("http://www.w3.org/2001/04/xmldsig-more#rsa-sha512", "SHA512withRSA");
+}
 	
 	public SignatureVerification(Document document) {
 		super(document);
@@ -249,7 +263,82 @@ public class SignatureVerification extends Verification {
 	 * pomocou pripojeného podpisového certifikátu v ds:KeyInfo
 	 */
 	public boolean verifyCoreSignatureValue() throws DocumentVerificationException {
-						
+		
+		Element signatureElement = (Element) document.getElementsByTagName("ds:Signature").item(0);
+		
+		Element signedInfoElement = (Element) signatureElement.getElementsByTagName("ds:SignedInfo").item(0);
+		Element canonicalizationMethodElement = (Element) signedInfoElement.getElementsByTagName("ds:CanonicalizationMethod").item(0);
+		Element signatureMethodElement = (Element) signedInfoElement.getElementsByTagName("ds:SignatureMethod").item(0);
+		Element signatureValueElement = (Element) signatureElement.getElementsByTagName("ds:SignatureValue").item(0);
+		
+		
+		byte[] signedInfoElementBytes = null;
+		try {
+			signedInfoElementBytes = Converter.fromElementToString(signedInfoElement).getBytes();
+		} catch (TransformerException e) {
+			
+			throw new DocumentVerificationException(
+					"Core validation zlyhala. Chyba pri tranformacii z Element do String", e);
+		}
+		
+		String canonicalizationMethod = canonicalizationMethodElement.getAttribute("Algorithm");
+		
+		try {
+			Canonicalizer canonicalizer = Canonicalizer.getInstance(canonicalizationMethod);
+			signedInfoElementBytes = canonicalizer.canonicalize(signedInfoElementBytes);
+			
+		} catch (SAXException | InvalidCanonicalizerException | CanonicalizationException | ParserConfigurationException | IOException e) {
+			
+			throw new DocumentVerificationException("Core validation zlyhala. Chyba pri kanonikalizacii", e);
+		}
+		
+		X509CertificateObject certificate = null;
+		try {
+			certificate = this.certFinder.getCertificate();
+			
+		} catch (XPathExpressionException e) {
+			
+			throw new DocumentVerificationException(
+					"X509 certifikát sa v dokumente nepodarilo nájsť", e);
+		}
+		
+		String signatureMethod = signatureMethodElement.getAttribute("Algorithm");
+		signatureMethod = SIGN_ALG.get(signatureMethod);
+		
+		System.out.println(certificate.getPublicKey());
+		
+		Signature signer = null;
+		try {
+			signer = Signature.getInstance(signatureMethod);
+			signer.initVerify(certificate.getPublicKey());
+			signer.update(signedInfoElementBytes);
+			
+		} catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
+			
+			throw new DocumentVerificationException(
+					"Core validation zlyhala. Chyba pri inicializacii prace s digitalnym podpisom", e);
+		}
+		
+		byte[] signatureValueBytes = signatureValueElement.getTextContent().getBytes();
+		byte[] decodedSignatureValueBytes = Base64.decode(signatureValueBytes);
+		
+		boolean verificationResult = false;
+		
+		try {
+			verificationResult = signer.verify(decodedSignatureValueBytes);
+			
+		} catch (SignatureException e) {
+			
+			throw new DocumentVerificationException(
+					"Core validation zlyhala. Chyba pri verifikacii digitalneho podpisu", e);
+		}
+		
+		if (verificationResult == false) {
+			
+			throw new DocumentVerificationException(
+					"Podpisana hodnota ds:SignedInfo sa nezhoduje s hodnotou v elemente ds:SignatureValue");
+		}
+		
 		return true;
 	}
 	
@@ -260,27 +349,27 @@ public class SignatureVerification extends Verification {
 	 */
 	public boolean verifySignature() throws DocumentVerificationException {
 		
-		Element signature = (Element) document.getElementsByTagName("ds:Signature").item(0);
+		Element signatureElement = (Element) document.getElementsByTagName("ds:Signature").item(0);
 		
-		if (signature == null) {
+		if (signatureElement == null) {
 			
 			throw new DocumentVerificationException(
 					"Element ds:Signature sa nenašiel");
 		}
 		
-		if (signature.hasAttribute("Id") == false) {
+		if (signatureElement.hasAttribute("Id") == false) {
 			
 			throw new DocumentVerificationException(
 					"Element ds:Signature neobsahuje atribút Id");
 		}
 		
-		if (assertElementAttributeValue(signature, "Id") == false) {
+		if (assertElementAttributeValue(signatureElement, "Id") == false) {
 			
 			throw new DocumentVerificationException(
 					"Atribút Id elementu ds:Signature neobsahuje žiadnu hodnotu");
 		}
 		
-		if (assertElementAttributeValue(signature, "xmlns:ds", "http://www.w3.org/2000/09/xmldsig#") == false) {
+		if (assertElementAttributeValue(signatureElement, "xmlns:ds", "http://www.w3.org/2000/09/xmldsig#") == false) {
 			
 			throw new DocumentVerificationException(
 					"Element ds:Signature nemá nastavený namespace xmlns:ds");
@@ -295,15 +384,15 @@ public class SignatureVerification extends Verification {
 	 */
 	public boolean verifySignatureValueId() throws DocumentVerificationException {
 		
-		Element signatureValue = (Element) document.getElementsByTagName("ds:SignatureValue").item(0);
+		Element signatureValueElement = (Element) document.getElementsByTagName("ds:SignatureValue").item(0);
 		
-		if (signatureValue == null) {
+		if (signatureValueElement == null) {
 			
 			throw new DocumentVerificationException(
 					"Element ds:SignatureValue sa nenašiel");
 		}
 		
-		if (signatureValue.hasAttribute("Id") == false) {
+		if (signatureValueElement.hasAttribute("Id") == false) {
 			
 			throw new DocumentVerificationException(
 					"Element ds:SignatureValue neobsahuje atribút Id");
@@ -333,27 +422,27 @@ public class SignatureVerification extends Verification {
 	 */
 	public boolean verifyKeyInfoContent() throws DocumentVerificationException {
 				
-		Element keyInfo = (Element) document.getElementsByTagName("ds:KeyInfo").item(0);
+		Element keyInfoElement = (Element) document.getElementsByTagName("ds:KeyInfo").item(0);
 		
-		if (keyInfo == null) {
+		if (keyInfoElement == null) {
 			
 			throw new DocumentVerificationException(
 					"Element ds:Signature sa nenašiel");
 		}
 		
-		if (keyInfo.hasAttribute("Id") == false) {
+		if (keyInfoElement.hasAttribute("Id") == false) {
 			
 			throw new DocumentVerificationException(
 					"Element ds:Signature neobsahuje atribút Id");
 		}
 		
-		if (assertElementAttributeValue(keyInfo, "Id") == false) {
+		if (assertElementAttributeValue(keyInfoElement, "Id") == false) {
 			
 			throw new DocumentVerificationException(
 					"Atribút Id elementu ds:Signature neobsahuje žiadnu hodnotu");
 		}
 		
-		Element xDataElement = (Element) keyInfo.getElementsByTagName("ds:X509Data").item(0);
+		Element xDataElement = (Element) keyInfoElement.getElementsByTagName("ds:X509Data").item(0);
 		
 		if (xDataElement == null) {
 			
