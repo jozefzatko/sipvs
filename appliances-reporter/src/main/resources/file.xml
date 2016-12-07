@@ -1,23 +1,41 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<appliance-report report_id="36b4e032-3af7-4da4-9fcc-cfd374140f94" report_lang="SK">
+<appliance-report report_id="79bf3347-70ab-4b26-8b9b-f73c73010ee1" report_lang="SK">
     <accommodated_info>
-        <first_name>fd</first_name>
-        <family_name>d</family_name>
-        <birth_date>2016-10-11+02:00</birth_date>
-        <faculty>FCHPT</faculty>
+        <first_name>fdsfsd</first_name>
+        <family_name>fdsfdsfsd</family_name>
+        <birth_date>2016-12-22+01:00</birth_date>
+        <faculty>SvF</faculty>
     </accommodated_info>
     <room_info>
-        <block>A3</block>
-        <room_number>22</room_number>
+        <block>A1</block>
+        <room_number>23</room_number>
     </room_info>
     <appliances>
         <appliance>
-            <type>fd</type>
-            <name>qfds</name>
-            <serial_number>fds</serial_number>
-            <year>2012</year>
+            <type>dsada</type>
+            <name>dsadsa</name>
+            <serial_number>dsadsa</serial_number>
+            <year>2002</year>
+        </appliance>
+        <appliance>
+            <type>dsada</type>
+            <name>dsadsa</name>
+            <serial_number>dsadsa</serial_number>
+            <year>2002</year>
+        </appliance>
+        <appliance>
+            <type>dsada</type>
+            <name>dsadsa</name>
+            <serial_number>dsadsa</serial_number>
+            <year>2002</year>
+        </appliance>
+        <appliance>
+            <type>dsada</type>
+            <name>dsadsa</name>
+            <serial_number>dsadsa</serial_number>
+            <year>2002</year>
         </appliance>
     </appliances>
-    <place>BA</place>
-    <date>2016-10-29T15:01:20.710+02:00</date>
+    <place>blava</place>
+    <date>2016-12-05T23:14:49.596+01:00</date>
 </appliance-report>
