@@ -82,6 +82,16 @@ public class SignatureVerification extends Verification {
 			}
 	));
 	
+	private static final Map<String, String> REFERENCES;
+	
+	static {
+		REFERENCES = new HashMap<String, String>();
+		REFERENCES.put("ds:KeyInfo", "http://www.w3.org/2000/09/xmldsig#Object");
+		REFERENCES.put("ds:SignatureProperties", "http://www.w3.org/2000/09/xmldsig#SignatureProperties");
+		REFERENCES.put("xades:SignedProperties", "http://uri.etsi.org/01903#SignedProperties");
+		REFERENCES.put("ds:Manifest", "http://www.w3.org/2000/09/xmldsig#Manifest");
+	}
+	
 	private static final Map<String, String> DIGEST_ALG;
 	
 	static {
@@ -114,16 +124,40 @@ public class SignatureVerification extends Verification {
 	 */
 	public boolean verifySignatureMethodAndCanonicalizationMethod() throws DocumentVerificationException {
 		
-		Element signatureMethod = (Element) document.getElementsByTagName("ds:SignatureMethod").item(0);
+		Element signatureMethod = null;
+		try {
+			signatureMethod = (Element) XPathAPI.selectSingleNode(document.getDocumentElement(), "//ds:Signature/ds:SignedInfo/ds:SignatureMethod");
+			
+		} catch (XPathException e) {
+			
+			throw new DocumentVerificationException(
+					"Chyba pri kontrole elementu ds:Signature/ds:SignedInfo/ds:SignatureMethod. Element nebol v dokumente najdeny");
+		}
 
+		/*
+		 * Kontrola obsahu ds:SignatureMethod
+		 */
 		if (assertElementAttributeValue(signatureMethod, "Algorithm", signatureMethods) == false) {
 			
 			throw new DocumentVerificationException(
 					"Atribút Algorithm elementu ds:SignatureMethod neobsahuje URI niektorého z podporovaných algoritmov");
 		}
 		
-		Element canonicalizationMethod = (Element) document.getElementsByTagName("ds:CanonicalizationMethod").item(0);
 		
+		
+		Element canonicalizationMethod = null;
+		try {
+			canonicalizationMethod = (Element) XPathAPI.selectSingleNode(document.getDocumentElement(), "//ds:Signature/ds:SignedInfo/ds:CanonicalizationMethod");
+		
+		} catch (XPathException e) {
+			
+			throw new DocumentVerificationException(
+					"Chyba pri kontrole elementu ds:Signature/ds:SignedInfo/ds:CanonicalizationMethod. Element nebol v dokumente najdeny");
+		}
+		
+		/*
+		 * Kontrola obsahu ds:CanonicalizationMethod
+		 */
 		if (assertElementAttributeValue(canonicalizationMethod, "Algorithm", canonicalizationMethods) == false) {
 			
 			throw new DocumentVerificationException(
@@ -139,16 +173,25 @@ public class SignatureVerification extends Verification {
 	 */
 	public boolean verifyTransformsAndDigestMethod() throws DocumentVerificationException {
 		
-		Element signedInfo = (Element) document.getElementsByTagName("ds:SignedInfo").item(0);
+		NodeList transformsElements = null;
+		try {
+			transformsElements = XPathAPI.selectNodeList(document.getDocumentElement(), "//ds:Signature/ds:SignedInfo/ds:Reference/ds:Transforms");
 		
-		
-		NodeList transformsElements = signedInfo.getElementsByTagName("ds:Transforms");
+		} catch (XPathException e) {
+			
+			throw new DocumentVerificationException(
+					"Chyba pri kontrole elementu ds:Signature/ds:SignedInfo/ds:Reference/ds:Transforms. Element nebol v dokumente najdeny");
+		}
 		
 		for (int i=0; i<transformsElements.getLength(); i++) {
 			
 			Element transformsElement = (Element) transformsElements.item(i);
 			Element transformElement = (Element) transformsElement.getElementsByTagName("ds:Transform").item(0);
 			
+			/*
+			 * Kontrola obsahu ds:Transforms
+			 * Musi obsahovať URI niektorého z podporovaných algoritmov
+			 */
 			if (assertElementAttributeValue(transformElement, "Algorithm", transformMethods) == false) {
 				
 				throw new DocumentVerificationException(
@@ -157,11 +200,19 @@ public class SignatureVerification extends Verification {
 		}
 		
 		
-		NodeList digestMethodElements = signedInfo.getElementsByTagName("ds:DigestMethod");
+		NodeList digestMethodElements = null;
+		try {
+			digestMethodElements = XPathAPI.selectNodeList(document.getDocumentElement(), "//ds:Signature/ds:SignedInfo/ds:Reference/ds:DigestMethod");
+			
+		} catch (XPathException e) {
+			
+			throw new DocumentVerificationException(
+					"Chyba pri kontrole elementu ds:Signature/ds:SignedInfo/ds:Reference/ds:DigestMethod. Element nebol v dokumente najdeny");
+		}
 		
 		for (int i=0; i<digestMethodElements.getLength(); i++) {
 			
-			Element digestMethodElement = (Element) digestMethodElements.item(0);
+			Element digestMethodElement = (Element) digestMethodElements.item(i);
 			
 			if (assertElementAttributeValue(digestMethodElement, "Algorithm", digestMethods) == false) {
 				
@@ -180,9 +231,15 @@ public class SignatureVerification extends Verification {
 	 */
 	public boolean verifyCoreReferencesAndDigestValue() throws DocumentVerificationException {
 
-		Element signedInfo = (Element) document.getElementsByTagName("ds:SignedInfo").item(0);
+		NodeList referencesElements = null;
+		try {
+			referencesElements = XPathAPI.selectNodeList(document.getDocumentElement(), "//ds:Signature/ds:SignedInfo/ds:Reference");
 		
-		NodeList referencesElements = signedInfo.getElementsByTagName("ds:Reference");
+		} catch (XPathException e) {
+			
+			throw new DocumentVerificationException(
+					"Chyba pri ziskavani elementu ds:Signature/ds:SignedInfo/ds:Reference. Element nebol v dokumente najdeny");
+		}
 		
 		for (int i=0; i<referencesElements.getLength(); i++) {
 			
@@ -259,6 +316,7 @@ public class SignatureVerification extends Verification {
 			if (expectedDigestValue.equals(actualDigestValue) == false) {
 				
 				throw new DocumentVerificationException(
+						"Core validation zlyhala. " +
 						"Hodnota ds:DigestValue elementu ds:Reference sa nezhoduje s hash hodnotou elementu ds:Manifest");
 			}
 			
@@ -417,6 +475,113 @@ public class SignatureVerification extends Verification {
 	 * 	- všetky ostatné referencie v rámci ds:SignedInfo musia byť referenciami na ds:Manifest elementy
 	 */
 	public boolean verifySignedInfoReferencesAndAttributeValues() throws DocumentVerificationException {
+		
+		NodeList referencesElements = null;
+		try {
+			referencesElements = XPathAPI.selectNodeList(document.getDocumentElement(), "//ds:Signature/ds:SignedInfo/ds:Reference");
+		
+		} catch (XPathException e) {
+			
+			throw new DocumentVerificationException(
+					"Chyba pri ziskavani elementu ds:Signature/ds:SignedInfo/ds:Reference. Element nebol v dokumente najdeny");
+		}
+		
+		for (int i=0; i<referencesElements.getLength(); i++) {
+			
+			Element referenceElement = (Element) referencesElements.item(i);
+			String uri = referenceElement.getAttribute("URI").substring(1);
+			String actualType = referenceElement.getAttribute("Type");
+			
+			Element referencedElement = null;
+			try {
+				referencedElement = (Element) XPathAPI.selectSingleNode(this.document.getDocumentElement(),
+						String.format("//ds:Signature//*[@Id='%s']", uri));
+				
+			} catch (XPathException e) {
+				
+				throw new DocumentVerificationException(
+						"Chyba pri overeni existencie referencií v ds:SignedInfo. Chyba pri ziskavani elementu s Id " + uri);
+			}
+			
+			if (referencedElement == null) {
+				
+				throw new DocumentVerificationException(
+						"Chyba pri overeni existencie referencií v ds:SignedInfo. Neexistuje element s Id: " + uri);
+			}
+			
+			String referencedElementName = referencedElement.getNodeName();
+			
+			if (REFERENCES.containsKey(referencedElementName) == false) {
+				
+				throw new DocumentVerificationException(
+						"Chyba pri overeni existencie referencií v ds:SignedInfo. Neznama referencia " + referencedElementName);
+			}
+			
+			String expectedReferenceType = REFERENCES.get(referencedElementName);
+			
+			if (actualType.equals(expectedReferenceType) == false) {
+				
+				throw new DocumentVerificationException(
+						"Chyba pri overeni zhody referencií v ds:SignedInfo. " + actualType + " sa nezhoduje s " + expectedReferenceType);
+			}
+			
+			
+			Element keyInfoReferenceElement = null;
+			try {
+				keyInfoReferenceElement = (Element) XPathAPI.selectSingleNode(this.document.getDocumentElement(),
+						"//ds:Signature/ds:SignedInfo/ds:Reference[@Type='http://www.w3.org/2000/09/xmldsig#Object']");
+				
+			} catch (XPathException e) {
+				
+				throw new DocumentVerificationException(
+						"Chyba pri overeni existencie referencií v ds:SignedInfo." +
+						"Chyba pri ziskavani elementu s Type http://www.w3.org/2000/09/xmldsig#Object", e);
+			}
+			
+			if (keyInfoReferenceElement == null) {
+				
+				throw new DocumentVerificationException(
+						"Neexistuje referencia na ds:KeyInfo element v elemente ds:Reference");
+			}
+			
+			
+			Element signaturePropertieReferenceElement = null;
+			try {
+				signaturePropertieReferenceElement = (Element) XPathAPI.selectSingleNode(this.document.getDocumentElement(),
+						"//ds:Signature/ds:SignedInfo/ds:Reference[@Type='http://www.w3.org/2000/09/xmldsig#SignatureProperties']");
+				
+			} catch (XPathException e) {
+				
+				throw new DocumentVerificationException(
+						"Chyba pri overeni existencie referencií v ds:SignedInfo." +
+						"Chyba pri ziskavani elementu s Type http://www.w3.org/2000/09/xmldsig#SignatureProperties", e);
+			}
+			
+			if (signaturePropertieReferenceElement == null) {
+				
+				throw new DocumentVerificationException(
+						"Neexistuje referencia na ds:SignatureProperties element v elemente ds:Reference");
+			}
+			
+			
+			Element signedInfoReferenceElement = null;
+			try {
+				signedInfoReferenceElement = (Element) XPathAPI.selectSingleNode(this.document.getDocumentElement(),
+						"//ds:Signature/ds:SignedInfo/ds:Reference[@Type='http://uri.etsi.org/01903#SignedProperties']");
+				
+			} catch (XPathException e) {
+				
+				throw new DocumentVerificationException(
+						"Chyba pri overeni existencie referencií v ds:SignedInfo." +
+						"Chyba pri ziskavani elementu s Type http://uri.etsi.org/01903#SignedProperties", e);
+			}
+			
+			if (signedInfoReferenceElement == null) {
+				
+				throw new DocumentVerificationException(
+						"Neexistuje referencia na xades:SignedProperties element v elemente ds:Reference");
+			}
+		}
 		
 		return true;
 	}
