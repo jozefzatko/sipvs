@@ -93,6 +93,7 @@ public class MultipleDocumentsVerificator {
 	private Document convertToDocument(String s) throws ParserConfigurationException, IOException, SAXException {
 		
 		DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
+		documentFactory.setNamespaceAware(true);
 		DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
 		InputSource source = new InputSource(new StringReader(s));
 		
