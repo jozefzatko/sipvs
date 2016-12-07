@@ -42,4 +42,17 @@ public abstract class Verification {
 		}
 		return false;
 	}
+	
+	protected boolean assertElementAttributeValue(Element element, String attribute) {
+		
+		String actualValue = element.getAttribute(attribute);
+		
+		if (!actualValue.isEmpty()) {
+			
+			return true;
+			
+		}
+		return false;
+	}
+	
 }
