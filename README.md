@@ -13,6 +13,7 @@
 * JACOB v1.8
 * JAXB
 * WSDL2Java
+* Bouncy Castle and Spring cryptography libraries
 
 ### 1. časť
 * aplikácia umožňujúca vyplnenie formulára (nahlásenie el. spotrebičov ubytovaného na internáte)
@@ -28,6 +29,9 @@
 * získanie časovej pečiatky od TSA (Timestamp Authority) cez webovú službu
 * vloženie časovej pečiatky do štruktúry elektronického podpisu
 
+### 4. časť
+* samostatná aplikácia na overenie elektronického podpisu (XAdES-T)
+
 ### Import aplikácie
 **pre Windows, Java 8 32bit a Eclipse IDE 32bit**
 
@@ -41,10 +45,14 @@ git clone https://github.com/jozefzatko/sipvs.git
 cd appliances-reporter
 mvn eclipse:eclipse
 ```
+```
+cd signature-verificator
+mvn eclipse:eclipse
+```
 
 **3. Build aplikácie vrátane stiahnutia potrebných knižníc a vygenerovania tried pomocou JAXB**
 ```
-mvn install
+mvn clean install
 mvn generate-sources
 ```
 
